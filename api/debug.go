@@ -12,7 +12,7 @@ import (
 func Print(json []byte, err error) error {
 	if err == nil {
 		if Config.IndentJson {
-			if json, err = IndentJson(json); err != nil {
+			if json, err = indentJson(json); err != nil {
 				return err
 			}
 		}
@@ -29,7 +29,7 @@ func Print(json []byte, err error) error {
 	return nil
 }
 
-func IndentJson(data []byte) ([]byte, error) {
+func indentJson(data []byte) ([]byte, error) {
 	dst := &bytes.Buffer{}
 	err := json.Indent(dst, data, "", "  ")
 	if err != nil {

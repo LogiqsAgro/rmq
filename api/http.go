@@ -62,13 +62,13 @@ func appendGlobalQueryParameters(pathAndQuery string) string {
 	if strings.Contains(pathAndQuery, "?") {
 		return pathAndQuery + "&" + q.String()
 	}
-	return pathAndQuery + q.UrlSuffix()
+	return pathAndQuery + q.QueryString()
 }
 
 // url returns the absolute url for the given path and query.
 func (cfg *cfg) url(pathAndQuery string) string {
 	pathAndQuery = strings.TrimLeft(pathAndQuery, "/")
-	return fmt.Sprintf("%s://%s:%d/api/%s", cfg.Scheme, cfg.Host, cfg.Port, pathAndQuery)
+	return fmt.Sprintf("%s://%s:%d/api/%s", cfg.Scheme, cfg.Host, cfg.ApiPort, pathAndQuery)
 }
 
 // call invokes the http method on the given url and returns the response.

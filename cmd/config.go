@@ -65,6 +65,10 @@ func initializeConfig(cmd *cobra.Command) error {
 // Bind each cobra flag to its associated viper configuration (config file and environment variable)
 func bindFlags(cmd *cobra.Command, v *viper.Viper, envPrefix string) {
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		// TODO see how we can scope the flag names by command
+		// e.g. the 'check listener --protocol' could be set in the config with the name 'check.listener.protocol'
+		// e.q. the 'list --columns' could be set in the config with the name 'list.columns'
+
 		// Apply the viper config value to the flag when the flag is not set and viper has a value
 		if !f.Changed && v.IsSet(f.Name) {
 			val := v.Get(f.Name)
@@ -78,7 +82,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper, envPrefix string) {
 // configCmd represents the config command
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "A brief description of your command",
+	Short: "Commands to change or read rmq's configuration",
 	Long:  ` `,
 	Run:   nil,
 }

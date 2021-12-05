@@ -70,7 +70,7 @@ func (p *pageFilter) ToQuery() (Query, bool) {
 func (p *pageFilter) ToUrlSuffix() string {
 	if p != nil {
 		if q, ok := p.ToQuery(); ok {
-			return q.UrlSuffix()
+			return q.QueryString()
 		}
 	}
 	return ""
@@ -83,22 +83,22 @@ type (
 		// Empty returns true if there are no parameters added to the query
 		Empty() bool
 
-		// Add adds a query parameter, both name and value are query encoded for you.
+		// Add adds a query parameter, both name and value are query escaped for you.
 		// You can add multiple parameters with the same name, if you think that makes sense.
 		Add(name, value string) Query
 
-		// Add adds a query parameter, name and value are not query encoded for you.
+		// AddEscaped adds a query parameter, name and value are assumed to be already query escaped.
 		// You can add multiple parameters with the same name, if you think that makes sense.
-		AddRaw(name, value string) Query
+		AddEscaped(name, value string) Query
 
 		// AddIf adds a query parameter if condition is true.
 		AddIf(condition bool, name, value string) Query
 
-		// String returns the encoded query string not including the leading question mark
+		// String returns the encoded query string excluding the leading question mark
 		String() string
 
-		// UrlSuffix returns the encoded query string including the leading question mark
-		UrlSuffix() string
+		// QueryString returns the encoded query string including the leading question mark
+		QueryString() string
 	}
 
 	query struct {
@@ -106,9 +106,9 @@ type (
 	}
 
 	param struct {
-		Name    string
-		Value   string
-		Encoded bool
+		Name      string
+		Value     string
+		IsEscaped bool
 	}
 )
 
@@ -118,12 +118,12 @@ func NewQuery() Query {
 }
 
 func (q *query) Add(name, value string) Query {
-	q.Params = append(q.Params, param{Name: name, Value: value, Encoded: false})
+	q.Params = append(q.Params, param{Name: name, Value: value, IsEscaped: false})
 	return q
 }
 
-func (q *query) AddRaw(name, value string) Query {
-	q.Params = append(q.Params, param{Name: name, Value: value, Encoded: true})
+func (q *query) AddEscaped(name, value string) Query {
+	q.Params = append(q.Params, param{Name: name, Value: value, IsEscaped: true})
 	return q
 }
 
@@ -139,11 +139,24 @@ func (q *query) Empty() bool {
 }
 
 func (q *query) String() string {
+	return q.buildQueryString(false)
+}
+
+func (q *query) QueryString() string {
+	return q.buildQueryString(true)
+}
+
+func (q *query) buildQueryString(includeQuestionMark bool) string {
 	if q.Empty() {
 		return ""
 	}
 
 	str := &strings.Builder{}
+
+	if includeQuestionMark {
+		str.WriteString("?")
+	}
+
 	for i := 0; i < len(q.Params); i++ {
 		p := q.Params[i]
 		if i > 0 {
@@ -153,7 +166,7 @@ func (q *query) String() string {
 		name := p.Name
 		value := p.Value
 
-		if !p.Encoded {
+		if !p.IsEscaped {
 			name = url.QueryEscape(name)
 			value = url.QueryEscape(value)
 		}
@@ -163,8 +176,4 @@ func (q *query) String() string {
 		str.WriteString(value)
 	}
 	return str.String()
-}
-
-func (q *query) UrlSuffix() string {
-	return "?" + q.String()
 }

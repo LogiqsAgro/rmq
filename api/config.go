@@ -13,7 +13,7 @@ var (
 	defaults = map[string]interface{}{
 		"scheme":       "http",
 		"host":         "localhost",
-		"port":         15672,
+		"api-port":     15672,
 		"user":         "guest",
 		"password":     "guest",
 		"vhost":        "/",
@@ -29,7 +29,7 @@ var (
 func AddConfigFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVar(&Config.Scheme, "scheme", defaults["scheme"].(string), "RabbitMQ api protocol")
 	cmd.PersistentFlags().StringVar(&Config.Host, "host", defaults["host"].(string), "RabbitMQ machine name")
-	cmd.PersistentFlags().IntVar(&Config.Port, "port", defaults["port"].(int), "RabbitMQ management api port")
+	cmd.PersistentFlags().IntVar(&Config.ApiPort, "api-port", defaults["api-port"].(int), "RabbitMQ management api port")
 	cmd.PersistentFlags().StringVar(&Config.User, "user", defaults["user"].(string), "RabbitMQ user name")
 	cmd.PersistentFlags().StringVar(&Config.Password, "password", defaults["password"].(string), "RabbitMQ user name")
 	cmd.PersistentFlags().StringVar(&Config.VHost, "vhost", defaults["vhost"].(string), "RabbitMQ virtual host")
@@ -37,13 +37,14 @@ func AddConfigFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().BoolVar(&Config.IndentJson, "pretty-print", defaults["pretty-print"].(bool), "Enable formatting of the json responses")
 }
 
+// AddListFlags adds parameters to the command that change the shape and sort order of returned data from the RabbitMQ api.
 func AddListFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringArrayVar(&Config.Columns, "columns", defaults["columns"].([]string), "Fields to include in list responses, use commas to separate fields, use dots to include sub-fields like: field.subfield")
 	cmd.PersistentFlags().StringVar(&Config.Sort, "sort", defaults["sort"].(string), "Field to sort list responses by, use dots to specify a sub-field like: message_stats.deliver_details.rate, You cannot specify multiple sort fields, only 1 field is supported")
 	cmd.PersistentFlags().BoolVar(&Config.SortReverse, "sort-reverse", defaults["sort-reverse"].(bool), "Reverses the sort order")
 }
 
-// AddPagingFlags adds commandline parameters to the command for paging parameters in the RabbitMQ api
+// AddPagingFlags adds parameters to the command for paging parameters in the RabbitMQ api
 func AddPagingFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().IntVarP(&Page.Page, "page", "p", 1, "The results page number (one-based)")
 	cmd.PersistentFlags().IntVarP(&Page.PageSize, "page-size", "s", 100, "The results page size")
@@ -55,7 +56,7 @@ type (
 	cfg struct {
 		Scheme      string
 		Host        string
-		Port        int
+		ApiPort     int
 		VHost       string
 		User        string
 		Password    string

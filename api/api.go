@@ -15,7 +15,8 @@ const (
 	UnitYears  = "years"
 )
 
-func AllUnits() []string {
+// CertificateExpirationTimeUnits returns the list of time units usable in GetHealthChecksCertificateExpirationJson(within int, unit string)
+func CertificateExpirationTimeUnits() []string {
 	return []string{
 		UnitDays,
 		UnitWeeks,
@@ -24,7 +25,7 @@ func AllUnits() []string {
 	}
 }
 
-// GetOverviewJson returns tarious random bits of information that describe the whole system. ( GET /api/overview )
+// GetOverviewJson returns various random bits of information that describe the whole system. ( GET /api/overview )
 func GetOverviewJson() ([]byte, error) {
 	resp, err := Get("overview")
 	if err != nil {
@@ -67,7 +68,7 @@ func GetNodeJson(name string, memory, binary bool) ([]byte, error) {
 		NewQuery().
 			AddIf(memory, "memory", "true").
 			AddIf(binary, "binary", "true").
-			UrlSuffix()
+			QueryString()
 
 	resp, err := Get(pnq)
 	if err != nil {
@@ -524,7 +525,7 @@ func GetVHostTopicPermissionsJson(name string) ([]byte, error) {
 	return ReadBody(resp)
 }
 
-// GetUsersJson returns the result of GET /api/users
+// GetUsersJson returns the list of users ( GET /api/users )
 func GetUsersJson() ([]byte, error) {
 	resp, err := Get("users")
 	if err != nil {
@@ -546,7 +547,7 @@ func GetUsersWithoutPermissionsJson() ([]byte, error) {
 }
 
 // GetUserJson returns the user's details
-// () GET /api/users/<name> )
+// ( GET /api/users/<name> )
 func GetUserJson(name string) ([]byte, error) {
 	pnq := "users/" + url.PathEscape(name)
 	resp, err := Get(pnq)
@@ -841,8 +842,8 @@ func GetHealthChecksAlarmsJson() ([]byte, error) {
 	return ReadBody(resp)
 }
 
-// GetHealthChecksAlarms responds a 200 OK if there are no alarms in effect in the cluster, otherwise responds with a 503 Service Unavailable.
-// ( GET /api/health/checks/alarms )
+// GetHealthChecksLocalAlarmsJson responds a 200 OK if there are no local alarms in effect on the target node, otherwise responds with a 503 Service Unavailable.
+// ( GET /api/health/checks/local-alarms )
 func GetHealthChecksLocalAlarmsJson() ([]byte, error) {
 	pnq := "health/checks/local-alarms"
 	resp, err := Get(pnq)
@@ -853,12 +854,39 @@ func GetHealthChecksLocalAlarmsJson() ([]byte, error) {
 	return ReadBody(resp)
 }
 
-// GetHealthChecksAlarms responds a 200 OK if there are no alarms in effect in the cluster, otherwise responds with a 503 Service Unavailable.
-// ( GET /api/health/checks/alarms )
+// GetHealthChecksCertificateExpirationJson checks the expiration date on the certificates for every listener configured to use TLS.
+// Responds a 200 OK if all certificates are valid (have not expired), otherwise responds with a 503 Service Unavailable.
+// Valid units: days, weeks, months, years. The value of the within argument is the number of units. So, when within is 2 and unit is "months", the expiration period used by the check will be the next two months.
+// ( GET health/checks/certificate-expiration/<within>/<days|weeks|months|years> )
 func GetHealthChecksCertificateExpirationJson(within int, unit string) ([]byte, error) {
-	pnq := "health/checks/certificate-expiration" +
-		"/" + fmt.Sprintf("%d", within) +
-		"/" + url.PathEscape(unit)
+	pnq := fmt.Sprintf("health/checks/certificate-expiration/%d/%s", within, url.PathEscape(unit))
+
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+// GetHealthChecksPortListenerJson Responds a 200 OK if there is an active listener on the give port, otherwise responds with a 503 Service Unavailable.
+// ( GET /api/health/checks/port-listener/<port> )
+func GetHealthChecksPortListenerJson(port uint16) ([]byte, error) {
+	pnq := fmt.Sprintf("health/checks/port-listener/%d", port)
+
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+// GetHealthChecksProtocolListenerJson responds a 200 OK if there is an active listener for the given protocol,
+// otherwise responds with a 503 Service Unavailable. Valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp
+// ( GET /api/health/checks/protocol-listener/<protocol> )
+func GetHealthChecksProtocolListenerJson(protocol string) ([]byte, error) {
+	pnq := fmt.Sprintf("health/checks/protocol-listener/%s", protocol)
 
 	resp, err := Get(pnq)
 	if err != nil {

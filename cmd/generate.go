@@ -35,13 +35,11 @@ var generateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
-	api.AddConfigFlags(generateCmd)
-
 }
 
 func generate(cmd *cobra.Command, args []string) {
 	definition, err := api.GetVHostDefinitions(api.Config.VHost)
-	api.PanicIf(err)
+	panicIf(err)
 
 	g, err := buildGraph(definition)
 	panicIf(err)
