@@ -20,32 +20,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listVHostQueuesCmd represents the listQueues command
-var listVHostQueuesCmd = &cobra.Command{
-	Use:   "vhost-queues",
-	Short: "Lists the queues defined in a vhost",
-	Long:  `Lists all the queues defined in a vhost`,
+var listFederationLinksCmd = &cobra.Command{
+	Use:   "federation-links",
+	Short: "Lists status for all federation links. Requires the rabbitmq_federation_management plugin to be enabled.",
+	Long:  `Lists status for all federation links. Requires the rabbitmq_federation_management plugin to be enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostQueuesJson(api.Config.VHost)
+		json, err := api.GetFederationLinksJson()
 		api.Print(json, err)
 	},
 }
 
-// listVHostQueuesCmd represents the listQueues command
-var listVHostQueueCmd = &cobra.Command{
-	Use:   "vhost-queue",
-	Short: "Lists the named queue defined in the vhost",
-	Long:  `Lists the named queue defined in the vhost`,
+var listVhostFederationLinksCmd = &cobra.Command{
+	Use:   "vhost-federation-links",
+	Short: "Lists status for vhost federation links. Requires the rabbitmq_federation_management plugin to be enabled.",
+	Long:  `Lists status for vhost federation links. Requires the rabbitmq_federation_management plugin to be enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostQueueJson(api.Config.VHost, listVHostQueueName)
+		json, err := api.GetVhostFederationLinksJson(api.Config.VHost)
 		api.Print(json, err)
 	},
 }
-
-var listVHostQueueName string = ""
 
 func init() {
-	listCmd.AddCommand(listVHostQueuesCmd)
-	listCmd.AddCommand(listVHostQueueCmd)
-	listVHostQueueCmd.PersistentFlags().StringVarP(&listVHostQueueName, "name", "n", "NAME", "The name of the queue to list")
+	listCmd.AddCommand(listFederationLinksCmd)
+	listCmd.AddCommand(listVhostFederationLinksCmd)
 }

@@ -20,17 +20,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listOverviewCmd represents the listOverview command
-var listOverviewCmd = &cobra.Command{
-	Use:   "overview",
-	Short: "Lists information about the cluster, node and runtime.",
-	Long:  `Lists information about the cluster, node and runtime.`,
+// checkVHostAlivenessCmd represents the checkVHostAliveness command
+var checkVHostsCmd = &cobra.Command{
+	Use:   "vhosts",
+	Short: "Checks if all virtual hosts are running on the target node.",
+	Long:  `Checks if all virtual hosts are running on the target node.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetOverviewJson()
+		json, err := api.GetHealthChecksVHosts()
 		api.Print(json, err)
 	},
 }
 
 func init() {
-	listCmd.AddCommand(listOverviewCmd)
+	checkCmd.AddCommand(checkVHostsCmd)
 }

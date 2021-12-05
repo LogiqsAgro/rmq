@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+Copyright © 2021 Remco Schoeman <remco.schoeman@logiqs.nl>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ var listVHostConnectionsCmd = &cobra.Command{
 // listConnectionsCmd represents the listConnections command
 var listConnectionCmd = &cobra.Command{
 	Use:   "connection",
-	Short: "Shows the connection with the given --name",
-	Long:  `Shows the connection with the given --name`,
+	Short: "Lists details for the connection with the given --name",
+	Long:  `Lists details for the connection with the given --name`,
 	Run: func(cmd *cobra.Command, args []string) {
 		json, err := api.GetConnectionJson(connectionName)
 		api.Print(json, err)

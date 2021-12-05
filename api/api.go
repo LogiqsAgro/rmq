@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/LogiqsAgro/rmq/api/vhost"
 )
@@ -43,6 +44,27 @@ func CertificateExpirationTimeUnits() []string {
 // GetOverviewJson returns various random bits of information that describe the whole system. ( GET /api/overview )
 func GetOverviewJson() ([]byte, error) {
 	resp, err := Get("overview")
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+// GetFederationLinksJson returns status for all federation links. Requires the rabbitmq_federation_management plugin to be enabled. ( GET /api/federation-links )
+func GetFederationLinksJson() ([]byte, error) {
+	resp, err := Get("federation-links")
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+// GetVhostFederationLinksJson returns status for federation links of a vhost. Requires the rabbitmq_federation_management plugin to be enabled. ( GET /api/federation-links/<vhost> )
+func GetVhostFederationLinksJson(name string) ([]byte, error) {
+	pnq := fmt.Sprintf("federation-links/%s", url.PathEscape(name))
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -510,6 +532,25 @@ func GetVHostsJson() ([]byte, error) {
 	return ReadBody(resp)
 }
 
+func GetVHostsLimitsJson() ([]byte, error) {
+	resp, err := Get("vhost-limits")
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+func GetVHostLimitsJson(name string) ([]byte, error) {
+	pnq := fmt.Sprintf("vhost-limits/%s", url.PathEscape(name))
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
 func GetVHostJson(name string) ([]byte, error) {
 	pnq := "vhosts/" + url.PathEscape(name)
 	resp, err := Get(pnq)
@@ -532,6 +573,39 @@ func GetVHostPermissionsJson(name string) ([]byte, error) {
 
 func GetVHostTopicPermissionsJson(name string) ([]byte, error) {
 	pnq := "vhosts/" + url.PathEscape(name) + "/topic-permissions"
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+func GetAuthJson() ([]byte, error) {
+	pnq := "auth"
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+func GetAuthAttemptsJson(node string) ([]byte, error) {
+	pnq := fmt.Sprintf("auth/attempts/%s", url.PathEscape(node))
+	if len(node) == 0 {
+		pnq = strings.TrimRight(pnq, "/")
+	}
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+func GetAuthAttemptsBySourceJson(node string) ([]byte, error) {
+	pnq := fmt.Sprintf("auth/attempts/%s/source", url.PathEscape(node))
 	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
@@ -837,6 +911,46 @@ func GetVHostOperatorPolicyJson(vhost, name string) ([]byte, error) {
 // ( GET /api/aliveness-test/<vhost> )
 func GetAlivenessTestJson(vhost string) ([]byte, error) {
 	pnq := "aliveness-test/" + url.PathEscape(vhost)
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+// GetHealthChecksVHosts responds a 200 OK if all virtual hosts and running on the target node, otherwise responds with a 503 Service Unavailable.
+// ( GET /api/health/checks/virtual-hosts )
+func GetHealthChecksVHosts() ([]byte, error) {
+	pnq := "health/checks/virtual-hosts"
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+// GetHealthChecksNodeIsMirrorSyncCritical Checks if there are classic mirrored queues without synchronised mirrors online
+// (queues that would potentially lose data if the target node is shut down).
+// Responds a 200 OK if there are no such classic mirrored queues, otherwise responds with a 503 Service Unavailable.
+// ( GET /api/health/checks/node-is-mirror-sync-critical )
+func GetHealthChecksNodeIsMirrorSyncCritical() ([]byte, error) {
+	pnq := "health/checks/node-is-mirror-sync-critical"
+	resp, err := Get(pnq)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadBody(resp)
+}
+
+// GetHealthChecksNodeIsQuorumCritical Checks if there are quorum queues with minimum online quorum
+// (queues that would lose their quorum and availability if the target node is shut down).
+// Responds a 200 OK if there are no such quorum queues, otherwise responds with a 503 Service Unavailable.
+// ( GET /api/health/checks/node-is-quorum-critical )
+func GetHealthChecksNodeIsQuorumCritical() ([]byte, error) {
+	pnq := "health/checks/node-is-quorum-critical"
 	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err

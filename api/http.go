@@ -97,6 +97,9 @@ func (cfg *cfg) call(method, url string, body interface{}) (*http.Response, erro
 
 	traceRequest(req)
 	resp, err := client.Do(req)
+	if resp.StatusCode >= http.StatusBadRequest {
+		err = fmt.Errorf("RabbitMQ returned error: %s", resp.Status)
+	}
 	traceResponse(resp, err)
 	return resp, err
 }
