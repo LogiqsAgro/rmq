@@ -20,15 +20,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Lists RabbitMQ items",
-	Long:  ``,
-	Run:   nil,
+// listQueuesCmd represents the list queues command
+var listQueuesCmd = &cobra.Command{
+	Use:   "queues",
+	Short: "Lists all queues",
+	Long:  `Lists all queues`,
+	Run: func(cmd *cobra.Command, args []string) {
+		json, err := api.GetQueuesJson()
+		api.Print(json, err)
+	},
 }
 
 func init() {
-	rootCmd.AddCommand(listCmd)
-	api.AddListFlags(listCmd)
+	listCmd.AddCommand(listQueuesCmd)
 }

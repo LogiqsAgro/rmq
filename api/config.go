@@ -1,8 +1,6 @@
 package api
 
 import (
-	"net/url"
-
 	"github.com/spf13/cobra"
 )
 
@@ -10,7 +8,7 @@ var (
 	// Config contains the default global config settings
 	Config *cfg = new(cfg)
 	// Page contains the default global pagination settings
-	Page *page = newPage()
+	Page *pageFilter = newPage()
 
 	defaults = map[string]interface{}{
 		"scheme":       "http",
@@ -21,6 +19,9 @@ var (
 		"vhost":        "/",
 		"debug":        false,
 		"pretty-print": false,
+		"columns":      []string{},
+		"sort":         "",
+		"sort-reverse": false,
 	}
 )
 
@@ -36,27 +37,32 @@ func AddConfigFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().BoolVar(&Config.IndentJson, "pretty-print", defaults["pretty-print"].(bool), "Enable formatting of the json responses")
 }
 
+func AddListFlags(cmd *cobra.Command) {
+	cmd.PersistentFlags().StringArrayVar(&Config.Columns, "columns", defaults["columns"].([]string), "Fields to include in list responses, use commas to separate fields, use dots to include sub-fields like: field.subfield")
+	cmd.PersistentFlags().StringVar(&Config.Sort, "sort", defaults["sort"].(string), "Field to sort list responses by, use dots to specify a sub-field like: message_stats.deliver_details.rate, You cannot specify multiple sort fields, only 1 field is supported")
+	cmd.PersistentFlags().BoolVar(&Config.SortReverse, "sort-reverse", defaults["sort-reverse"].(bool), "Reverses the sort order")
+}
+
 // AddPagingFlags adds commandline parameters to the command for paging parameters in the RabbitMQ api
 func AddPagingFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().IntVarP(&Page.Page, "page", "p", 1, "The results page number (one-based)")
-	cmd.PersistentFlags().IntVarP(&Page.Size, "page-size", "s", 100, "The results page size")
+	cmd.PersistentFlags().IntVarP(&Page.PageSize, "page-size", "s", 100, "The results page size")
 	cmd.PersistentFlags().StringVarP(&Page.Name, "name", "n", "", "The name to filter for")
 	cmd.PersistentFlags().BoolVarP(&Page.UseRegex, "regex", "r", false, "Enables regular expressions for the --name filter")
 }
 
 type (
 	cfg struct {
-		Scheme     string
-		Host       string
-		Port       int
-		VHost      string
-		User       string
-		Password   string
-		Debug      bool
-		IndentJson bool
+		Scheme      string
+		Host        string
+		Port        int
+		VHost       string
+		User        string
+		Password    string
+		Debug       bool
+		IndentJson  bool
+		Columns     []string
+		Sort        string
+		SortReverse bool
 	}
 )
-
-func (cfg *cfg) escapedVHost() string {
-	return url.PathEscape(cfg.VHost)
-}

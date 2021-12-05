@@ -31,6 +31,21 @@ var listVHostQueuesCmd = &cobra.Command{
 	},
 }
 
+// listVHostQueuesCmd represents the listQueues command
+var listVHostQueueCmd = &cobra.Command{
+	Use:   "vhost-queue",
+	Short: "Lists the named queue defined in the vhost",
+	Long:  `Lists the named queue defined in the vhost`,
+	Run: func(cmd *cobra.Command, args []string) {
+		json, err := api.GetVHostQueueJson(api.Config.VHost, listVHostQueueName)
+		api.Print(json, err)
+	},
+}
+
+var listVHostQueueName string = ""
+
 func init() {
 	listCmd.AddCommand(listVHostQueuesCmd)
+	listCmd.AddCommand(listVHostQueueCmd)
+	listVHostQueueCmd.PersistentFlags().StringVarP(&listVHostQueueName, "name", "n", "NAME", "The name of the queue to list")
 }

@@ -33,7 +33,7 @@ var checkAlarmsCmd = &cobra.Command{
 
 // checkAlarmsCmd represents the checkAlarms command
 var checkLocalAlarmsCmd = &cobra.Command{
-	Use:   "alarms",
+	Use:   "local-alarms",
 	Short: "Check if there are no local alarms in effect on the target node.",
 	Long:  `Check if there are no local alarms in effect on the target node.`,
 	Run: func(cmd *cobra.Command, args []string) {

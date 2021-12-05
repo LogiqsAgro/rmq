@@ -7,52 +7,52 @@ import (
 )
 
 type (
-	page struct {
+	pageFilter struct {
 		Page     int
-		Size     int
+		PageSize int
 		Name     string
 		UseRegex bool
 	}
 )
 
-func NewPage(num, size int) *page {
-	return NewPageFilter(num, size, "", false)
+func NewPage(page, pageSize int) *pageFilter {
+	return NewPageFilter(page, pageSize, "", false)
 }
 
-func NewPageFilter(num, size int, name string, useRegex bool) *page {
-	if num < 1 {
-		num = 1
+func NewPageFilter(page, pageSize int, name string, useRegex bool) *pageFilter {
+	if page < 1 {
+		page = 1
 	}
-	if size < 1 {
-		size = 100
+	if pageSize < 1 {
+		pageSize = 100
 	}
-	return &page{
-		Page:     num,
-		Size:     size,
+	return &pageFilter{
+		Page:     page,
+		PageSize: pageSize,
 		Name:     name,
 		UseRegex: useRegex,
 	}
 }
 
-func newPage() *page {
-	return &page{
+func newPage() *pageFilter {
+	return &pageFilter{
 		Page:     1,
-		Size:     100,
+		PageSize: 100,
 		Name:     "",
 		UseRegex: false,
 	}
 }
 
 // ToQuery returns the Query representing this page
-func (p *page) ToQuery() (Query, bool) {
+func (p *pageFilter) ToQuery() (Query, bool) {
 	q := NewQuery()
 
 	if p.Page > 1 {
 		q.Add("page", fmt.Sprintf("%d", p.Page))
 	}
 
-	if p.Size > 0 && p.Size != 100 {
-		q.Add("page_size", fmt.Sprintf("%d", p.Size))
+	if p.PageSize > 0 && p.PageSize != 100 {
+		q.Add("page_size", fmt.Sprintf("%d", p.PageSize))
 	}
 
 	if p.Name != "" {
@@ -67,10 +67,10 @@ func (p *page) ToQuery() (Query, bool) {
 
 // ToUrlSuffix returns the page parameters as a query string including the leading '?'
 // or it returns the empty string if this is the default page settings
-func (p *page) ToUrlSuffix() string {
+func (p *pageFilter) ToUrlSuffix() string {
 	if p != nil {
 		if q, ok := p.ToQuery(); ok {
-			return "?" + q.String()
+			return q.UrlSuffix()
 		}
 	}
 	return ""
@@ -87,11 +87,18 @@ type (
 		// You can add multiple parameters with the same name, if you think that makes sense.
 		Add(name, value string) Query
 
+		// Add adds a query parameter, name and value are not query encoded for you.
+		// You can add multiple parameters with the same name, if you think that makes sense.
+		AddRaw(name, value string) Query
+
 		// AddIf adds a query parameter if condition is true.
 		AddIf(condition bool, name, value string) Query
 
 		// String returns the encoded query string not including the leading question mark
 		String() string
+
+		// UrlSuffix returns the encoded query string including the leading question mark
+		UrlSuffix() string
 	}
 
 	query struct {
@@ -99,8 +106,9 @@ type (
 	}
 
 	param struct {
-		Name  string
-		Value string
+		Name    string
+		Value   string
+		Encoded bool
 	}
 )
 
@@ -110,7 +118,12 @@ func NewQuery() Query {
 }
 
 func (q *query) Add(name, value string) Query {
-	q.Params = append(q.Params, param{Name: name, Value: value})
+	q.Params = append(q.Params, param{Name: name, Value: value, Encoded: false})
+	return q
+}
+
+func (q *query) AddRaw(name, value string) Query {
+	q.Params = append(q.Params, param{Name: name, Value: value, Encoded: true})
 	return q
 }
 
@@ -136,9 +149,22 @@ func (q *query) String() string {
 		if i > 0 {
 			str.WriteString("&")
 		}
-		str.WriteString(url.QueryEscape(p.Name))
+
+		name := p.Name
+		value := p.Value
+
+		if !p.Encoded {
+			name = url.QueryEscape(name)
+			value = url.QueryEscape(value)
+		}
+
+		str.WriteString(name)
 		str.WriteString("=")
-		str.WriteString(url.QueryEscape(p.Value))
+		str.WriteString(value)
 	}
 	return str.String()
+}
+
+func (q *query) UrlSuffix() string {
+	return "?" + q.String()
 }

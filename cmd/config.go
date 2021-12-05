@@ -226,7 +226,6 @@ var configShowCmd = &cobra.Command{
 
 			v := viper.GetViper()
 			printViperContents(v)
-
 		}
 	},
 }

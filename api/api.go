@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/LogiqsAgro/rmq/api/vhost"
@@ -27,7 +26,7 @@ func AllUnits() []string {
 
 // GetOverviewJson returns tarious random bits of information that describe the whole system. ( GET /api/overview )
 func GetOverviewJson() ([]byte, error) {
-	resp, err := Call("overview", http.MethodGet)
+	resp, err := Get("overview")
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +37,7 @@ func GetOverviewJson() ([]byte, error) {
 // GetClusterName returns the name identifying this RabbitMQ cluster.
 // ( GET /api/cluster-name )
 func GetClusterName() ([]byte, error) {
-	resp, err := Call("cluster-name", http.MethodGet)
+	resp, err := Get("cluster-name")
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +48,7 @@ func GetClusterName() ([]byte, error) {
 // GetNodesJson returns a list of nodes in the RabbitMQ cluster.
 // ( GET /api/nodes )
 func GetNodesJson() ([]byte, error) {
-	resp, err := Call("nodes", http.MethodGet)
+	resp, err := Get("nodes")
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +67,9 @@ func GetNodeJson(name string, memory, binary bool) ([]byte, error) {
 		NewQuery().
 			AddIf(memory, "memory", "true").
 			AddIf(binary, "binary", "true").
-			String()
+			UrlSuffix()
 
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +80,7 @@ func GetNodeJson(name string, memory, binary bool) ([]byte, error) {
 // GetExtensionsJson returns a list of extensions to the management plugin.
 // ( GET /api/extensions)
 func GetExtensionsJson() ([]byte, error) {
-	resp, err := Call("extensions", http.MethodGet)
+	resp, err := Get("extensions")
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +93,7 @@ func GetExtensionsJson() ([]byte, error) {
 // Everything apart from messages.
 // ( GET /api/definitions )
 func GetDefinitionsJson() ([]byte, error) {
-	resp, err := Call("definitions", http.MethodGet)
+	resp, err := Get("definitions")
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +106,7 @@ func GetDefinitionsJson() ([]byte, error) {
 // ( GET /api/definitions/<name> )
 func GetVHostDefinitionsJson(name string) ([]byte, error) {
 	pnq := "definitions/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -137,9 +136,9 @@ func GetVHostDefinitions(name string) (*vhost.Definition, error) {
 // Use nil for default page (page 1, size 100, no name filter)
 // see api.NewPage(...)  or api.NewPageFilter(...)
 // ( GET /api/connections )
-func GetConnectionsJson(page *page) ([]byte, error) {
+func GetConnectionsJson(page *pageFilter) ([]byte, error) {
 	pnq := "connections" + page.ToUrlSuffix()
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -152,9 +151,9 @@ func GetConnectionsJson(page *page) ([]byte, error) {
 // Use nil for default page (page 1, size 100, no name filter)
 // see api.NewPage(...)  or api.NewPageFilter(...)
 // ( GET /api/vhosts/<vhost>/connections )
-func GetVHostConnectionsJson(vhost string, page *page) ([]byte, error) {
+func GetVHostConnectionsJson(vhost string, page *pageFilter) ([]byte, error) {
 	pnq := "vhosts/" + url.PathEscape(vhost) + "/connections" + page.ToUrlSuffix()
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +165,7 @@ func GetVHostConnectionsJson(vhost string, page *page) ([]byte, error) {
 // ( GET /api/connections/<name> )
 func GetConnectionJson(name string) ([]byte, error) {
 	pnq := "connections/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +177,7 @@ func GetConnectionJson(name string) ([]byte, error) {
 // ( GET /api/connections/<name>/channels )
 func GetConnectionChannelsJson(name string) ([]byte, error) {
 	pnq := "connections/" + url.PathEscape(name) + "/channels"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -188,9 +187,9 @@ func GetConnectionChannelsJson(name string) ([]byte, error) {
 
 // GetChannelsJson lists  all open channels.
 // ( GET /api/channels )
-func GetChannelsJson(page *page) ([]byte, error) {
+func GetChannelsJson(page *pageFilter) ([]byte, error) {
 	pnq := "channels" + page.ToUrlSuffix()
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +201,7 @@ func GetChannelsJson(page *page) ([]byte, error) {
 // ( GET /api/channels/<channel> )
 func GetChannelJson(channel string) ([]byte, error) {
 	pnq := "channels/" + url.PathEscape(channel)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -212,9 +211,9 @@ func GetChannelJson(channel string) ([]byte, error) {
 
 // GetChannelsJson list all open channels in a specific virtual host
 // ( GET /api/vhosts/<vhost>/channels )
-func GetVhostChannelsJson(vhost string, page *page) ([]byte, error) {
+func GetVhostChannelsJson(vhost string, page *pageFilter) ([]byte, error) {
 	pnq := "vhosts/" + url.PathEscape(vhost) + "/channels" + page.ToUrlSuffix()
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -224,9 +223,9 @@ func GetVhostChannelsJson(vhost string, page *page) ([]byte, error) {
 
 // GetConsumersJson lists all consumers.
 // ( GET /api/consumers )
-func GetConsumersJson(page *page) ([]byte, error) {
+func GetConsumersJson(page *pageFilter) ([]byte, error) {
 	pnq := "consumers" + page.ToUrlSuffix()
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -236,9 +235,9 @@ func GetConsumersJson(page *page) ([]byte, error) {
 
 // GetVHostConsumersJson lists all consumers in a given virtual host.
 // ( GET /api/consumers/vhost )
-func GetVHostConsumersJson(vhost string, page *page) ([]byte, error) {
+func GetVHostConsumersJson(vhost string, page *pageFilter) ([]byte, error) {
 	pnq := "consumers/" + url.PathEscape(vhost) + page.ToUrlSuffix()
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -248,9 +247,9 @@ func GetVHostConsumersJson(vhost string, page *page) ([]byte, error) {
 
 // GetExchangesJson returns A list of all exchanges
 // ( GET /api/exchanges )
-func GetExchangesJson(page *page) ([]byte, error) {
+func GetExchangesJson(page *pageFilter) ([]byte, error) {
 	pnq := "exchanges" + page.ToUrlSuffix()
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +261,7 @@ func GetExchangesJson(page *page) ([]byte, error) {
 // ( GET /api/exchanges/<vhost>)
 func GetVHostExchangesJson(vhost string) ([]byte, error) {
 	pnq := "exchanges/" + url.PathEscape(vhost)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -289,7 +288,7 @@ func GetVHostExchanges(name string) ([]*vhost.Exchange, error) {
 // ( GET /api/exchanges/<vhost>)
 func GetVHostExchangeJson(vhost, exchange string) ([]byte, error) {
 	pnq := "exchanges/" + url.PathEscape(vhost) + "/" + url.PathEscape(exchange)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -301,7 +300,7 @@ func GetVHostExchangeJson(vhost, exchange string) ([]byte, error) {
 // ( GET /api/exchanges/<vhost>/bindings/source )
 func GetVHostExchangeBindingsSourceJson(vhost, exchange string) ([]byte, error) {
 	pnq := "exchanges/" + url.PathEscape(vhost) + "/" + url.PathEscape(exchange) + "/bindings/source"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -313,7 +312,7 @@ func GetVHostExchangeBindingsSourceJson(vhost, exchange string) ([]byte, error) 
 // ( GET /api/exchanges/<vhost>/bindings/destination )
 func GetVHostExchangeBindingsDestinationJson(vhost, exchange string) ([]byte, error) {
 	pnq := "exchanges/" + url.PathEscape(vhost) + "/" + url.PathEscape(exchange) + "/bindings/destination"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +321,7 @@ func GetVHostExchangeBindingsDestinationJson(vhost, exchange string) ([]byte, er
 }
 
 func GetQueuesJson() ([]byte, error) {
-	resp, err := Call("queues", http.MethodGet)
+	resp, err := Get("queues")
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +331,7 @@ func GetQueuesJson() ([]byte, error) {
 
 func GetVHostQueuesJson(vhost string) ([]byte, error) {
 	pnq := "queues/" + url.PathEscape(vhost)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -342,7 +341,7 @@ func GetVHostQueuesJson(vhost string) ([]byte, error) {
 
 func GetVHostQueueJson(vhost, queue string) ([]byte, error) {
 	pnq := "queues/" + url.PathEscape(vhost) + "/" + url.PathEscape(queue)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -352,7 +351,7 @@ func GetVHostQueueJson(vhost, queue string) ([]byte, error) {
 
 func GetVHostQueueBindingsJson(vhost, queue string) ([]byte, error) {
 	pnq := "queues/" + url.PathEscape(vhost) + "/" + url.PathEscape(queue) + "/bindings"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -373,11 +372,11 @@ func GetVHostQueues(name string) ([]*vhost.Queue, error) {
 	}
 }
 
-// GetVHostBindingsJson returns
+// GetBindingsJson returns
 // a list of all bindings
 // ( GET /api/bindings  )
 func GetBindingsJson() ([]byte, error) {
-	resp, err := Call("bindings", http.MethodGet)
+	resp, err := Get("bindings")
 	if err != nil {
 		return nil, err
 	}
@@ -390,7 +389,7 @@ func GetBindingsJson() ([]byte, error) {
 // ( GET /api/bindings/<vhost> )
 func GetVHostBindingsJson(vhost string) ([]byte, error) {
 	pnq := "bindings/" + url.PathEscape(vhost)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -423,7 +422,7 @@ func GetVHostExchangeQueueBindingsJson(vhost, exchange, queue string) ([]byte, e
 		"/e/" + url.PathEscape(exchange) +
 		"/q/" + url.PathEscape(queue)
 
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -443,7 +442,7 @@ func GetVHostExchangeQueueBindingJson(vhost, exchange, queue, propsKey string) (
 		"/q/" + url.PathEscape(queue) +
 		"/" + url.PathEscape(propsKey)
 
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -460,7 +459,7 @@ func GetVHostExchangeExchangeBindingsJson(vhost, source, destination string) ([]
 		"/e/" + url.PathEscape(source) +
 		"/e/" + url.PathEscape(destination)
 
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -478,7 +477,7 @@ func GetVHostExchangeExchangeBindingJson(vhost, source, destination, propsKey st
 		"/e/" + url.PathEscape(destination) +
 		"/" + url.PathEscape(propsKey)
 
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -487,7 +486,7 @@ func GetVHostExchangeExchangeBindingJson(vhost, source, destination, propsKey st
 }
 
 func GetVHostsJson() ([]byte, error) {
-	resp, err := Call("vhosts", http.MethodGet)
+	resp, err := Get("vhosts")
 	if err != nil {
 		return nil, err
 	}
@@ -497,7 +496,7 @@ func GetVHostsJson() ([]byte, error) {
 
 func GetVHostJson(name string) ([]byte, error) {
 	pnq := "vhosts/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -507,7 +506,7 @@ func GetVHostJson(name string) ([]byte, error) {
 
 func GetVHostPermissionsJson(name string) ([]byte, error) {
 	pnq := "vhosts/" + url.PathEscape(name) + "/permissions"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -517,7 +516,7 @@ func GetVHostPermissionsJson(name string) ([]byte, error) {
 
 func GetVHostTopicPermissionsJson(name string) ([]byte, error) {
 	pnq := "vhosts/" + url.PathEscape(name) + "/topic-permissions"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -527,7 +526,7 @@ func GetVHostTopicPermissionsJson(name string) ([]byte, error) {
 
 // GetUsersJson returns the result of GET /api/users
 func GetUsersJson() ([]byte, error) {
-	resp, err := Call("users", http.MethodGet)
+	resp, err := Get("users")
 	if err != nil {
 		return nil, err
 	}
@@ -538,7 +537,7 @@ func GetUsersJson() ([]byte, error) {
 // GetUsersWithoutPermissionsJson returns a list of users that do not have access to any virtual host.
 // ( GET /api/users/without-permissions )
 func GetUsersWithoutPermissionsJson() ([]byte, error) {
-	resp, err := Call("users/without-permissions", http.MethodGet)
+	resp, err := Get("users/without-permissions")
 	if err != nil {
 		return nil, err
 	}
@@ -550,7 +549,7 @@ func GetUsersWithoutPermissionsJson() ([]byte, error) {
 // () GET /api/users/<name> )
 func GetUserJson(name string) ([]byte, error) {
 	pnq := "users/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -562,7 +561,7 @@ func GetUserJson(name string) ([]byte, error) {
 // () GET /api/users/<name>/permissions )
 func GetUserPermissionsJson(name string) ([]byte, error) {
 	pnq := "users/" + url.PathEscape(name) + "/permissions"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -574,7 +573,7 @@ func GetUserPermissionsJson(name string) ([]byte, error) {
 // () GET /api/users/<name>/topic-permissions )
 func GetUserTopicPermissionsJson(name string) ([]byte, error) {
 	pnq := "users/" + url.PathEscape(name) + "/topic-permissions"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -586,7 +585,7 @@ func GetUserTopicPermissionsJson(name string) ([]byte, error) {
 // () GET /api/user-limits )
 func GetUsersLimitsJson() ([]byte, error) {
 	pnq := "user-limits"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -598,7 +597,7 @@ func GetUsersLimitsJson() ([]byte, error) {
 // () GET /api/user-limits/<name> )
 func GetUserLimitsJson(name string) ([]byte, error) {
 	pnq := "user-limits/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -609,7 +608,7 @@ func GetUserLimitsJson(name string) ([]byte, error) {
 // GetWhoAmIJson returns details of the currently authenticated user.
 //  GET /api/whoami
 func GetWhoAmIJson() ([]byte, error) {
-	resp, err := Call("whoami", http.MethodGet)
+	resp, err := Get("whoami")
 	if err != nil {
 		return nil, err
 	}
@@ -620,7 +619,7 @@ func GetWhoAmIJson() ([]byte, error) {
 // GetPermissionsJson returns a list of all permissions for all users.
 //  GET /api/permissions
 func GetPermissionsJson() ([]byte, error) {
-	resp, err := Call("permissions", http.MethodGet)
+	resp, err := Get("permissions")
 	if err != nil {
 		return nil, err
 	}
@@ -632,7 +631,7 @@ func GetPermissionsJson() ([]byte, error) {
 // ( GET /api/permissions/<vhost>/<user> )
 func GetVHostUserPermissionJson(vhost, user string) ([]byte, error) {
 	pnq := "permissions/" + url.PathEscape(vhost) + "/" + url.PathEscape(user)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -643,7 +642,7 @@ func GetVHostUserPermissionJson(vhost, user string) ([]byte, error) {
 // GetTopicPermissionsJson returns a list of all topic permissions for all users.
 //  GET /api/topic-permissions
 func GetTopicPermissionsJson() ([]byte, error) {
-	resp, err := Call("topic-permissions", http.MethodGet)
+	resp, err := Get("topic-permissions")
 	if err != nil {
 		return nil, err
 	}
@@ -655,7 +654,7 @@ func GetTopicPermissionsJson() ([]byte, error) {
 // ( GET /api/topic-permissions/<vhost>/<user> )
 func GetVHostUserTopicPermissionsJson(vhost, user string) ([]byte, error) {
 	pnq := "topic-permissions/" + url.PathEscape(vhost) + "/" + url.PathEscape(user)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -666,7 +665,7 @@ func GetVHostUserTopicPermissionsJson(vhost, user string) ([]byte, error) {
 // GetParametersJson returns a list of all vhost-scoped parameters.
 // ( GET /api/parameters )
 func GetParametersJson() ([]byte, error) {
-	resp, err := Call("parameters", http.MethodGet)
+	resp, err := Get("parameters")
 	if err != nil {
 		return nil, err
 	}
@@ -679,7 +678,7 @@ func GetParametersJson() ([]byte, error) {
 // ( GET /api/parameters/<component> )
 func GetComponentParametersJson(component string) ([]byte, error) {
 	pnq := "parameters/" + url.PathEscape(component)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -694,7 +693,7 @@ func GetComponentVHostParametersJson(component, vhost string) ([]byte, error) {
 	pnq := "parameters" +
 		"/" + url.PathEscape(component) +
 		"/" + url.PathEscape(vhost)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -710,7 +709,7 @@ func GetComponentVHostParameterJson(component, vhost, name string) ([]byte, erro
 		"/" + url.PathEscape(component) +
 		"/" + url.PathEscape(vhost) +
 		"/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -721,7 +720,7 @@ func GetComponentVHostParameterJson(component, vhost, name string) ([]byte, erro
 // GetGlobalParametersJson returns a list of all global parameters.
 // ( GET /api/parameters )
 func GetGlobalParametersJson() ([]byte, error) {
-	resp, err := Call("global-parameters", http.MethodGet)
+	resp, err := Get("global-parameters")
 	if err != nil {
 		return nil, err
 	}
@@ -734,7 +733,7 @@ func GetGlobalParametersJson() ([]byte, error) {
 // ( GET /api/parameters/<component> )
 func GetGlobalParameterJson(name string) ([]byte, error) {
 	pnq := "global-parameters/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -745,7 +744,7 @@ func GetGlobalParameterJson(name string) ([]byte, error) {
 // GetPoliciesJson returns a list of all policies.
 // ( GET /api/policies )
 func GetPoliciesJson() ([]byte, error) {
-	resp, err := Call("policies", http.MethodGet)
+	resp, err := Get("policies")
 	if err != nil {
 		return nil, err
 	}
@@ -757,7 +756,7 @@ func GetPoliciesJson() ([]byte, error) {
 // ( GET /api/policies/<vhost> )
 func GetVHostPoliciesJson(vhost string) ([]byte, error) {
 	pnq := "policies/" + url.PathEscape(vhost)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -771,7 +770,7 @@ func GetVHostPolicyJson(vhost, name string) ([]byte, error) {
 	pnq := "policies" +
 		"/" + url.PathEscape(vhost) +
 		"/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -782,7 +781,7 @@ func GetVHostPolicyJson(vhost, name string) ([]byte, error) {
 // GetOperatorPoliciesJson returns a list of all operator-policies.
 // ( GET /api/operator-policies )
 func GetOperatorPoliciesJson() ([]byte, error) {
-	resp, err := Call("operator-policies", http.MethodGet)
+	resp, err := Get("operator-policies")
 	if err != nil {
 		return nil, err
 	}
@@ -794,7 +793,7 @@ func GetOperatorPoliciesJson() ([]byte, error) {
 // ( GET /api/operator-policies/<vhost> )
 func GetVHostOperatorPoliciesJson(vhost string) ([]byte, error) {
 	pnq := "operator-policies/" + url.PathEscape(vhost)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -808,7 +807,7 @@ func GetVHostOperatorPolicyJson(vhost, name string) ([]byte, error) {
 	pnq := "operator-policies" +
 		"/" + url.PathEscape(vhost) +
 		"/" + url.PathEscape(name)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -822,7 +821,7 @@ func GetVHostOperatorPolicyJson(vhost, name string) ([]byte, error) {
 // ( GET /api/aliveness-test/<vhost> )
 func GetAlivenessTestJson(vhost string) ([]byte, error) {
 	pnq := "aliveness-test/" + url.PathEscape(vhost)
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -834,7 +833,7 @@ func GetAlivenessTestJson(vhost string) ([]byte, error) {
 // ( GET /api/health/checks/alarms )
 func GetHealthChecksAlarmsJson() ([]byte, error) {
 	pnq := "health/checks/alarms"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -846,7 +845,7 @@ func GetHealthChecksAlarmsJson() ([]byte, error) {
 // ( GET /api/health/checks/alarms )
 func GetHealthChecksLocalAlarmsJson() ([]byte, error) {
 	pnq := "health/checks/local-alarms"
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
@@ -861,7 +860,7 @@ func GetHealthChecksCertificateExpirationJson(within int, unit string) ([]byte, 
 		"/" + fmt.Sprintf("%d", within) +
 		"/" + url.PathEscape(unit)
 
-	resp, err := Call(pnq, http.MethodGet)
+	resp, err := Get(pnq)
 	if err != nil {
 		return nil, err
 	}
