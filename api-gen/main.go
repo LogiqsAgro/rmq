@@ -83,7 +83,7 @@ func run() {
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		panic(fmt.Errorf("Could not get rabbitmq version from %s: %s", overviewUrl, resp.Status))
+		panic(fmt.Errorf("could not get rabbitmq version from %s: %s", overviewUrl, resp.Status))
 	}
 
 	versions := struct {
