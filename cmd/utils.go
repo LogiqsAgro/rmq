@@ -15,7 +15,12 @@ limitations under the License.
 */
 package cmd
 
-import "os"
+import (
+	"os"
+
+	"github.com/LogiqsAgro/rmq/api"
+	"github.com/spf13/cobra"
+)
 
 func writeError(err error) bool {
 	if err != nil {
@@ -28,5 +33,23 @@ func writeError(err error) bool {
 func panicIf(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+func RunE(request func(*cobra.Command, []string) (api.Builder, error)) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		req, err := request(cmd, args)
+		if err != nil {
+			return err
+		}
+
+		// silence usage message from here on...
+		// any errors following here
+		// are not due to mis-usage of the command
+		cmd.SilenceUsage = true
+
+		api.ApplyConfig(req)
+		resp, err := api.Do(req)
+		return api.Print(resp, err)
 	}
 }

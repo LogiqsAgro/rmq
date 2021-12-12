@@ -28,15 +28,19 @@ var checkListenerCmd = &cobra.Command{
 	Use:   "listener",
 	Short: "Checks for an active listener on port or protocol.",
 	Long:  `Responds a 200 OK if there is an active listener on the given port or protocol, otherwise responds with a 503 Service Unavailable.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if checkListenerPort != 0 {
-			json, err := api.GetHealthChecksPortListenerJson(checkListenerPort)
-			api.Print(json, err)
-		} else if checkListenerProtocol != "" {
-			json, err := api.GetHealthChecksProtocolListenerJson(checkListenerProtocol)
-			api.Print(json, err)
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		if cmd.Flags().Changed("port") {
+			if checkListenerPort < 1 || checkListenerPort > 65535 {
+				return nil, fmt.Errorf("invalid port value: %d", checkListenerPort)
+			}
+			return api.GetHealthChecksPortListener(checkListenerPort), nil
+		} else if cmd.Flags().Changed("protocol") {
+			return api.GetHealthChecksProtocolListener(checkListenerProtocol), nil
+
+		} else {
+			return nil, fmt.Errorf("no port or protocol specified")
 		}
-	},
+	}),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		count := 0
 		names := []string{"port", "protocol"}
@@ -52,11 +56,11 @@ var checkListenerCmd = &cobra.Command{
 	},
 }
 
-var checkListenerPort uint16
+var checkListenerPort int
 var checkListenerProtocol string
 
 func init() {
 	checkCmd.AddCommand(checkListenerCmd)
-	checkListenerCmd.PersistentFlags().Uint16VarP(&checkListenerPort, "port", "", 0, "The RabbitMQ listener port (0-65535), cannot be used together with --protocol")
+	checkListenerCmd.PersistentFlags().IntVarP(&checkListenerPort, "port", "", 0, "The RabbitMQ listener port (0-65535), cannot be used together with --protocol")
 	checkListenerCmd.PersistentFlags().StringVarP(&checkListenerProtocol, "protocol", "", "", "Some valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp, cannot be used together with --port")
 }

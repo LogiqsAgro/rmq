@@ -25,10 +25,9 @@ var listExtensionsCmd = &cobra.Command{
 	Use:   "extensions",
 	Short: "Lists all extensions",
 	Long:  `Lists all extensions`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetExtensionsJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetExtensions(), nil
+	}),
 }
 
 func init() {

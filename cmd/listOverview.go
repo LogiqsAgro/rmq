@@ -25,10 +25,9 @@ var listOverviewCmd = &cobra.Command{
 	Use:   "overview",
 	Short: "Lists information about the cluster, node and runtime.",
 	Long:  `Lists information about the cluster, node and runtime.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetOverviewJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetOverview(), nil
+	}),
 }
 
 func init() {

@@ -25,10 +25,9 @@ var checkNodeIsMirrorSyncCriticalCmd = &cobra.Command{
 	Use:   "node-is-mirror-sync-critical",
 	Short: "Checks if there are classic mirrored queues without synchronised mirrors online (queues that would potentially lose data if the target node is shut down).",
 	Long:  `Checks if there are classic mirrored queues without synchronised mirrors online (queues that would potentially lose data if the target node is shut down).`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetHealthChecksNodeIsMirrorSyncCritical()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetHealthChecksNodeIsMirrorSyncCritical(), nil
+	}),
 }
 
 // checkVHostAlivenessCmd represents the checkVHostAliveness command
@@ -36,10 +35,9 @@ var checkNodeIsQuorumCriticalCmd = &cobra.Command{
 	Use:   "node-is-quorum-critical",
 	Short: "Checks if there are quorum queues with minimum online quorum (queues that would lose their quorum and availability if the target node is shut down).",
 	Long:  `Checks if there are quorum queues with minimum online quorum (queues that would lose their quorum and availability if the target node is shut down).`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetHealthChecksNodeIsQuorumCritical()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetHealthChecksNodeIsQuorumCritical(), nil
+	}),
 }
 
 func init() {

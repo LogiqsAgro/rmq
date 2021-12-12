@@ -25,10 +25,9 @@ var checkAlarmsCmd = &cobra.Command{
 	Use:   "alarms",
 	Short: "Check if there are no alarms in effect in the cluster.",
 	Long:  `Check if there are no alarms in effect in the cluster.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetHealthChecksAlarmsJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetHealthChecksAlarms(), nil
+	}),
 }
 
 // checkAlarmsCmd represents the checkAlarms command
@@ -36,10 +35,9 @@ var checkLocalAlarmsCmd = &cobra.Command{
 	Use:   "local-alarms",
 	Short: "Check if there are no local alarms in effect on the target node.",
 	Long:  `Check if there are no local alarms in effect on the target node.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetHealthChecksLocalAlarmsJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetHealthChecksLocalAlarms(), nil
+	}),
 }
 
 func init() {

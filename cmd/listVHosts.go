@@ -25,10 +25,9 @@ var listVHostsCmd = &cobra.Command{
 	Use:   "vhosts",
 	Short: "Lists all vhosts",
 	Long:  `Lists all vhosts`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostsJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetVhosts(), nil
+	}),
 }
 
 // listLimitsCmd represents the listLimits command
@@ -36,10 +35,9 @@ var listLimitsCmd = &cobra.Command{
 	Use:   "limits",
 	Short: "Lists limits for all vhosts",
 	Long:  `Lists limits for all vhosts`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostsLimitsJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetVhostLimits(), nil
+	}),
 }
 
 // listVHostLimitsCmd represents the listVHostLimits command
@@ -47,10 +45,9 @@ var listVHostLimitsCmd = &cobra.Command{
 	Use:   "vhost-limits",
 	Short: "Lists limits for the vhost",
 	Long:  `Lists limits for the vhost`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostLimitsJson(api.Config.VHost)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetVhostLimitsForVhost(api.Config.VHost), nil
+	}),
 }
 
 func init() {

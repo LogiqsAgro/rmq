@@ -25,10 +25,9 @@ var listVHostBindingsCmd = &cobra.Command{
 	Use:   "vhost-bindings",
 	Short: "Lists the bindings defined in the vhost",
 	Long:  `Lists the bindings defined in the vhost`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostBindingsJson(api.Config.VHost)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetBindingsForVhost(api.Config.VHost), nil
+	}),
 }
 
 func init() {

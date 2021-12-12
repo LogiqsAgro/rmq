@@ -25,10 +25,9 @@ var listVHostQueuesCmd = &cobra.Command{
 	Use:   "vhost-queues",
 	Short: "Lists the queues defined in a vhost",
 	Long:  `Lists all the queues defined in a vhost`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostQueuesJson(api.Config.VHost)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetQueuesForVhost(api.Config.VHost), nil
+	}),
 }
 
 // listVHostQueuesCmd represents the listQueues command
@@ -36,10 +35,9 @@ var listVHostQueueCmd = &cobra.Command{
 	Use:   "vhost-queue",
 	Short: "Lists the named queue defined in the vhost",
 	Long:  `Lists the named queue defined in the vhost`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostQueueJson(api.Config.VHost, listVHostQueueName)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetQueueForVhost(api.Config.VHost, listVHostQueueName), nil
+	}),
 }
 
 var listVHostQueueName string = ""

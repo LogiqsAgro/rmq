@@ -25,10 +25,9 @@ var checkVHostsCmd = &cobra.Command{
 	Use:   "vhosts",
 	Short: "Checks if all virtual hosts are running on the target node.",
 	Long:  `Checks if all virtual hosts are running on the target node.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetHealthChecksVHosts()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetHealthChecksVirtualHosts(), nil
+	}),
 }
 
 func init() {

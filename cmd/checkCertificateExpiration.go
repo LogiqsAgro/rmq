@@ -27,19 +27,18 @@ var checkCertificateExpirationCmd = &cobra.Command{
 	Use:   "certificate-expiration",
 	Short: "Checks the expiration date on the certificates for every listener configured to use TLS.",
 	Long:  `Checks the expiration date on the certificates for every listener configured to use TLS.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
 		for _, unit := range api.CertificateExpirationTimeUnits() {
 			name := withinFlagName(unit)
 			if cmd.Flags().Changed(name) {
 				within, err := cmd.PersistentFlags().GetInt(name)
 				if err == nil && within > 0 {
-					json, err := api.GetHealthChecksCertificateExpirationJson(within, unit)
-					api.Print(json, err)
-					return
+					return api.GetHealthChecksCertificateExpirationForWithinAndUnit(within, unit), nil
 				}
 			}
 		}
-	},
+		return nil, fmt.Errorf("no certficate expiration unit specified")
+	}),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		count := 0
 		names := []interface{}{}

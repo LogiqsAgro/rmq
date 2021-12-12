@@ -25,10 +25,9 @@ var listUsersCmd = &cobra.Command{
 	Use:   "users",
 	Short: "Lists all users",
 	Long:  `Lists all users`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetUsersJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetUsers(), nil
+	}),
 }
 
 func init() {

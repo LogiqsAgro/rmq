@@ -25,10 +25,9 @@ var listDefinitionsCmd = &cobra.Command{
 	Use:   "definitions",
 	Short: "Lists all definitions (queues, exchanges ,etc... ) for all vhosts",
 	Long:  `Lists all definitions (queues, exchanges ,etc... ) for all vhosts`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetDefinitionsJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetDefinitions(), nil
+	}),
 }
 
 // listVhostDefinitionsCmd represents the listVhostDefinitions command
@@ -36,10 +35,9 @@ var listVHostDefinitionsCmd = &cobra.Command{
 	Use:   "vhost-definitions",
 	Short: "Lists all definitions (queues, exchanges ,etc... ) in the vhost.",
 	Long:  `Lists all definitions (queues, exchanges ,etc... ) in the vhost.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostDefinitionsJson(api.Config.VHost)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetDefinitionsForVhost(api.Config.VHost), nil
+	}),
 }
 
 func init() {

@@ -19,38 +19,49 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 )
 
-// Print writes the json to stdout, or the error to stderr
-func Print(json []byte, err error) error {
-	if err == nil {
-		if Config.IndentJson {
-			if json, err = indentJson(json); err != nil {
-				return err
-			}
+// Print writes the response to stdout, and returns any errors
+func Print(resp *http.Response, err error) error {
+	if resp == nil {
+		return err
+	}
+
+	traceRequest(resp.Request)
+	traceResponse(resp, err)
+
+	if Config.IndentJson {
+		body := &bytes.Buffer{}
+		if _, err := io.Copy(body, resp.Body); err != nil {
+			return err
 		}
-		_, err := os.Stdout.Write(json)
-		if err != nil {
+
+		formatted := &bytes.Buffer{}
+		if err := json.Indent(formatted, body.Bytes(), "", "\t"); err != nil {
+			return err
+		}
+
+		if _, err = io.Copy(os.Stdout, formatted); err != nil {
 			return err
 		}
 	} else {
-		_, err := os.Stderr.WriteString("ERROR: " + err.Error())
-		if err != nil {
+		if io.Copy(os.Stdout, resp.Body); err != nil {
 			return err
 		}
 	}
-	return nil
+	os.Stdout.WriteString("\n")
+	if err == nil && !isSuccess(resp.StatusCode) {
+		return fmt.Errorf("request failed: %s ( url: %s )", resp.Status, resp.Request.URL.Redacted())
+	}
+
+	return err
 }
 
-func indentJson(data []byte) ([]byte, error) {
-	dst := &bytes.Buffer{}
-	err := json.Indent(dst, data, "", "  ")
-	if err != nil {
-		return nil, err
-	}
-	return dst.Bytes(), nil
+func isSuccess(statusCode int) bool {
+	return statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices
 }
 
 func traceRequest(r *http.Request) {

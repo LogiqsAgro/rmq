@@ -25,10 +25,9 @@ var listVHostExchangesCmd = &cobra.Command{
 	Use:   "vhost-exchanges",
 	Short: "Lists the exchanges defined in the vhost",
 	Long:  `Lists the exchanges defined in the vhost`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostExchangesJson(api.Config.VHost)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetExchangesForVhost(api.Config.VHost), nil
+	}),
 }
 
 func init() {

@@ -13,23 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
+package api
 
-import (
-	"github.com/LogiqsAgro/rmq/api"
-	"github.com/spf13/cobra"
+type (
+	pageFilter struct {
+		Page     int
+		PageSize int
+		Name     string
+		UseRegex bool
+	}
 )
 
-// listQueuesCmd represents the list queues command
-var listQueuesCmd = &cobra.Command{
-	Use:   "queues",
-	Short: "Lists all queues",
-	Long:  `Lists all queues`,
-	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
-		return api.GetQueues(), nil
-	}),
-}
-
-func init() {
-	listCmd.AddCommand(listQueuesCmd)
+func (pf *pageFilter) Apply(b Builder) Builder {
+	return b.
+		Page(pf.Page, pf.PageSize).
+		Filter(pf.Name, pf.UseRegex)
 }

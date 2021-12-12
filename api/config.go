@@ -16,6 +16,8 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +25,7 @@ var (
 	// Config contains the default global config settings
 	Config *cfg = new(cfg)
 	// Page contains the default global pagination settings
-	Page *pageFilter = newPage()
+	Page *pageFilter = new(pageFilter)
 
 	defaults = map[string]interface{}{
 		"scheme":       "http",
@@ -61,10 +63,15 @@ func AddListFlags(cmd *cobra.Command) {
 
 // AddPagingFlags adds parameters to the command for paging parameters in the RabbitMQ api
 func AddPagingFlags(cmd *cobra.Command) {
-	cmd.PersistentFlags().IntVarP(&Page.Page, "page", "p", 1, "The results page number (one-based)")
-	cmd.PersistentFlags().IntVarP(&Page.PageSize, "page-size", "s", 100, "The results page size")
+	cmd.PersistentFlags().IntVarP(&Page.Page, "page", "p", 0, "The results page number (one-based)")
+	cmd.PersistentFlags().IntVarP(&Page.PageSize, "page-size", "s", 0, "The results page size")
 	cmd.PersistentFlags().StringVarP(&Page.Name, "name", "n", "", "The name to filter for")
 	cmd.PersistentFlags().BoolVarP(&Page.UseRegex, "regex", "r", false, "Enables regular expressions for the --name filter")
+}
+
+func ApplyConfig(b Builder) {
+	Config.Apply(b)
+	Page.Apply(b)
 }
 
 type (
@@ -82,3 +89,11 @@ type (
 		SortReverse bool
 	}
 )
+
+func (cfg *cfg) Apply(b Builder) Builder {
+	return b.
+		BaseUrl(fmt.Sprintf("%s://%s:%d", cfg.Scheme, cfg.Host, cfg.ApiPort)).
+		BasicAuth(cfg.User, cfg.Password).
+		Sort(cfg.Sort, cfg.SortReverse).
+		Columns(cfg.Columns...)
+}

@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -30,23 +31,39 @@ var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Generates an image from the rabbit mq topology",
 	Long:  ` `,
-	Run:   generate,
+	RunE:  generate,
 }
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
 }
 
-func generate(cmd *cobra.Command, args []string) {
-	definition, err := api.GetVHostDefinitions(api.Config.VHost)
-	panicIf(err)
+func generate(cmd *cobra.Command, args []string) error {
+	cmd.SilenceUsage = true
+	req := api.GetDefinitionsForVhost(api.Config.VHost)
+	api.ApplyConfig(req)
+	resp, err := api.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	definition := &vhost.Definition{}
+	err = json.NewDecoder(resp.Body).Decode(definition)
+	if err != nil {
+		return err
+	}
 
 	g, err := buildGraph(definition)
-	panicIf(err)
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("// RabbitMQ version: ", definition.RabbitVersion)
 	fmt.Println("// node host: ", api.Config.Host)
 	fmt.Println("// vhost: ", api.Config.VHost)
 	fmt.Println(g.String())
+	return nil
 }
 
 func quoted(s string) string {

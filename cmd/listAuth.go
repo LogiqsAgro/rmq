@@ -27,9 +27,11 @@ var listAuthCmd = &cobra.Command{
 	Use:   "auth",
 	Short: "Lists details about the OAuth2 configuration",
 	Long:  `Lists details about the OAuth2 configuration`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetAuthJson()
-		api.Print(json, err)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		req := api.GetAuth()
+		api.ApplyConfig(req)
+		resp, err := api.Do(req)
+		return api.Print(resp, err)
 	},
 }
 
@@ -38,10 +40,9 @@ var listAuthAttempts = &cobra.Command{
 	Use:   "auth-attempts",
 	Short: "Lists authentication attempts on the specified node.",
 	Long:  `Lists authentication attempts on the specified node.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetAuthAttemptsJson(listAuthAttemptsNode)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetAuthAttempts(listAuthAttemptsNode), nil
+	}),
 	PreRunE: validateListAuthAttemptsNode,
 }
 
@@ -50,10 +51,9 @@ var listAuthAttemptsBySource = &cobra.Command{
 	Use:   "auth-attempts-by-source",
 	Short: "Lists authentication attempts by source on the specified node. 'track_auth_attempt_source' must be enabled in the RabbitMQ advanced config: see https://blog.rabbitmq.com/posts/2021/03/auth-attempts-metrics/",
 	Long:  `Lists authentication attempts by source on the specified node. 'track_auth_attempt_source' must be enabled in the RabbitMQ advanced config: see https://blog.rabbitmq.com/posts/2021/03/auth-attempts-metrics/`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetAuthAttemptsBySourceJson(listAuthAttemptsNode)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetAuthAttemptsSource(listAuthAttemptsNode), nil
+	}),
 	PreRunE: validateListAuthAttemptsNode,
 }
 

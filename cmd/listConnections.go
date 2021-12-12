@@ -25,9 +25,11 @@ var listConnectionsCmd = &cobra.Command{
 	Use:   "connections",
 	Short: "Lists all connections",
 	Long:  `Lists all connections`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetConnectionsJson(api.Page)
-		api.Print(json, err)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		req := api.GetConnections()
+		api.ApplyConfig(req)
+		resp, err := api.Do(req)
+		return api.Print(resp, err)
 	},
 }
 
@@ -36,10 +38,9 @@ var listVHostConnectionsCmd = &cobra.Command{
 	Use:   "vhost-connections",
 	Short: "Lists the connections for a vhost",
 	Long:  `Lists the connections for a vhost`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVHostConnectionsJson(api.Config.VHost, api.Page)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetConnectionsForVhost(api.Config.VHost), nil
+	}),
 }
 
 // listConnectionsCmd represents the listConnections command
@@ -47,10 +48,9 @@ var listConnectionCmd = &cobra.Command{
 	Use:   "connection",
 	Short: "Lists details for the connection with the given --name",
 	Long:  `Lists details for the connection with the given --name`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetConnectionJson(connectionName)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetConnection(connectionName), nil
+	}),
 }
 
 func init() {

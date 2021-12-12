@@ -25,12 +25,33 @@ var listNodesCmd = &cobra.Command{
 	Use:   "nodes",
 	Short: "Lists all cluster nodes",
 	Long:  `Lists all cluster nodes`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetNodesJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetNodes(), nil
+	}),
 }
+
+// listNodeCmd represents the listNode command
+var listNodeCmd = &cobra.Command{
+	Use:   "node",
+	Short: "Lists node details",
+	Long:  `Lists node details`,
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetNode(listNodeName).Memory(listNodeMemory).Binary(listNodeBinary), nil
+	}),
+}
+
+var listNodeName string
+var listNodeMemory bool
+var listNodeBinary bool
 
 func init() {
 	listCmd.AddCommand(listNodesCmd)
+	listCmd.AddCommand(listNodeCmd)
+	listNodeCmd.PersistentFlags().StringVarP(&listNodeName, "name", "n", "", "The node name")
+	addMemoryAndBinaryFlags(listNodeCmd)
+}
+
+func addMemoryAndBinaryFlags(cmd *cobra.Command) {
+	cmd.PersistentFlags().BoolVarP(&listNodeMemory, "memory", "m", false, "Add memory statistics to node, can cause performance degradation, use with care")
+	cmd.PersistentFlags().BoolVarP(&listNodeBinary, "binary", "b", false, "Add binary statistics to node, can cause performance degradation, use with care")
 }

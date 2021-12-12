@@ -25,10 +25,9 @@ var listGlobalParametersCmd = &cobra.Command{
 	Use:   "global-parameters",
 	Short: "Lists all global parameters",
 	Long:  `Lists all global parameters`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetGlobalParametersJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetGlobalParameters(), nil
+	}),
 }
 
 // listGlobalParametersCmd represents the listGlobalParameters command
@@ -36,10 +35,9 @@ var listGlobalParameterCmd = &cobra.Command{
 	Use:   "global-parameter",
 	Short: "Lists a global parameter",
 	Long:  `Lists a global parameter`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetGlobalParameterJson(parameterName)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetGlobalParameter(parameterName), nil
+	}),
 }
 
 func init() {

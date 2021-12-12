@@ -24,20 +24,18 @@ var listFederationLinksCmd = &cobra.Command{
 	Use:   "federation-links",
 	Short: "Lists status for all federation links. Requires the rabbitmq_federation_management plugin to be enabled.",
 	Long:  `Lists status for all federation links. Requires the rabbitmq_federation_management plugin to be enabled.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetFederationLinksJson()
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetFederationLinks(), nil
+	}),
 }
 
 var listVhostFederationLinksCmd = &cobra.Command{
 	Use:   "vhost-federation-links",
 	Short: "Lists status for vhost federation links. Requires the rabbitmq_federation_management plugin to be enabled.",
 	Long:  `Lists status for vhost federation links. Requires the rabbitmq_federation_management plugin to be enabled.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetVhostFederationLinksJson(api.Config.VHost)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetFederationLinksForVhost(api.Config.VHost), nil
+	}),
 }
 
 func init() {

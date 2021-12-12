@@ -25,10 +25,9 @@ var checkVHostAlivenessCmd = &cobra.Command{
 	Use:   "vhost-aliveness",
 	Short: "A very basic vhost health check.",
 	Long:  `Declares a test queue on the target node, then publishes and consumes a message. Intended to be used as a very basic health check.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		json, err := api.GetAlivenessTestJson(api.Config.VHost)
-		api.Print(json, err)
-	},
+	RunE: RunE(func(cmd *cobra.Command, args []string) (api.Builder, error) {
+		return api.GetAlivenessTestForVhost(api.Config.VHost), nil
+	}),
 }
 
 func init() {

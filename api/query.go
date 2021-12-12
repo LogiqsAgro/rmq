@@ -16,84 +16,16 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 )
 
 type (
-	pageFilter struct {
-		Page     int
-		PageSize int
-		Name     string
-		UseRegex bool
-	}
-)
-
-func NewPage(page, pageSize int) *pageFilter {
-	return NewPageFilter(page, pageSize, "", false)
-}
-
-func NewPageFilter(page, pageSize int, name string, useRegex bool) *pageFilter {
-	if page < 1 {
-		page = 1
-	}
-	if pageSize < 1 {
-		pageSize = 100
-	}
-	return &pageFilter{
-		Page:     page,
-		PageSize: pageSize,
-		Name:     name,
-		UseRegex: useRegex,
-	}
-}
-
-func newPage() *pageFilter {
-	return &pageFilter{
-		Page:     1,
-		PageSize: 100,
-		Name:     "",
-		UseRegex: false,
-	}
-}
-
-// ToQuery returns the Query representing this page
-func (p *pageFilter) ToQuery() (Query, bool) {
-	q := NewQuery()
-
-	if p.Page > 1 {
-		q.Add("page", fmt.Sprintf("%d", p.Page))
-	}
-
-	if p.PageSize > 0 && p.PageSize != 100 {
-		q.Add("page_size", fmt.Sprintf("%d", p.PageSize))
-	}
-
-	if p.Name != "" {
-		q.Add("name", p.Name)
-		if p.UseRegex {
-			q.Add("use_regex", "true")
-		}
-	}
-
-	return q, !q.Empty()
-}
-
-// ToUrlSuffix returns the page parameters as a query string including the leading '?'
-// or it returns the empty string if this is the default page settings
-func (p *pageFilter) ToUrlSuffix() string {
-	if p != nil {
-		if q, ok := p.ToQuery(); ok {
-			return q.QueryString()
-		}
-	}
-	return ""
-}
-
-type (
 	// Query helps with building a url query string
 	Query interface {
+
+		// Clone returns a deep-copy of this Query instance
+		Clone() Query
 
 		// Empty returns true if there are no parameters added to the query
 		Empty() bool
@@ -130,6 +62,14 @@ type (
 // NewQuery create a new Query builder
 func NewQuery() Query {
 	return &query{}
+}
+
+func (q *query) Clone() Query {
+	params := make([]param, len(q.Params))
+	copy(params, q.Params)
+	return &query{
+		Params: params,
+	}
 }
 
 func (q *query) Add(name, value string) Query {

@@ -44,6 +44,6 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.rmq.yaml)")
-
+	rootCmd.SilenceErrors = true
 	api.AddConfigFlags(rootCmd)
 }
