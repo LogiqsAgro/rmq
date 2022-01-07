@@ -71,7 +71,7 @@ func TestAstPrinter(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 	printer.Fprint(buf, fileset, f)
-	t.Error("\n" + buf.String())
+	t.Logf("\n%s", buf.String())
 }
 func TestAstParser(t *testing.T) {
 	fileset := token.NewFileSet()
@@ -135,6 +135,6 @@ func TestParseRequestInterface(t *testing.T) {
 		return true
 	})
 
-	t.Error("\n" + buf.String())
+	t.Logf("\n%s", buf.String())
 
 }
