@@ -69,7 +69,7 @@ func (v *generator) parseInputFile() error {
 		return fmt.Errorf("error parsing files: %w", err)
 	}
 
-	gofile := filepath.Join(cwd, v.Arg("GOFILE"))
+	gofile := v.goFile()
 	for pkgName := range pkgs {
 		pkg := pkgs[pkgName]
 
@@ -117,7 +117,8 @@ func (v *generator) cwd() string {
 	return cwd
 }
 
-func (v *generator) inputFilePath() string {
+// goFile returns the full path of the file in the GOFILE environment variable
+func (v *generator) goFile() string {
 	return filepath.Join(v.cwd(), v.Arg("GOFILE"))
 }
 
