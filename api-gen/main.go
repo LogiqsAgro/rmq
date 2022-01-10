@@ -25,34 +25,102 @@ import (
 
 	"github.com/LogiqsAgro/rmq/api-gen/generator"
 	"github.com/LogiqsAgro/rmq/api-gen/parser"
+	endpoint "github.com/LogiqsAgro/rmq/api/definitions"
 	"github.com/pkg/errors"
 )
 
 func main() {
-
 	run()
-	// data, err := endpoints.ToIndentedJson()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println(string(data))
 }
 
 func run() {
-	client := &http.Client{}
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			os.Exit(1)
+		}
+	}()
 
 	cwd, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	fileName := os.Getenv("GOFILE")
-	if strings.HasSuffix(fileName, ".go") {
-		fileName = fileName[:len(fileName)-3]
-		fileName = filepath.Join(cwd, fileName+".g.go")
-	} else {
-		panic(errors.New("Expected a go file as input but got: '" + fileName + "'"))
+
+	inFile := os.Getenv("GOFILE")
+	inFile = filepath.Join(cwd, inFile)
+
+	client := &http.Client{}
+	endpoints, err := parseApiDocs(client)
+	if err != nil {
+		panic(err)
 	}
 
+	rmqVersion, _, err := fetchVersions(client, "guest", "guest")
+	if err != nil {
+		panic(err)
+	}
+
+	cmd := command()
+	switch cmd {
+	case "dump-endpoints":
+		outFile := endpoint.SchemaFileName(rmqVersion)
+		outFile = filepath.Join(cwd, outFile)
+
+		obj := struct {
+			Version   string               `json:"version"`
+			Endpoints []*endpoint.Endpoint `json:"endpoints"`
+		}{
+			Version:   rmqVersion,
+			Endpoints: endpoints.ToSlice(),
+		}
+
+		f, err := os.Create(outFile)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		enc := json.NewEncoder(f)
+		enc.SetIndent("", "  ")
+		err = enc.Encode(obj)
+		if err != nil {
+			panic(err)
+		}
+
+	case "gen-api":
+		outFile := ""
+
+		if strings.HasSuffix(inFile, ".go") {
+			outFile = inFile[:len(inFile)-3]
+			outFile = outFile + ".g.go"
+		} else {
+			panic(errors.New("Expected a go file as input but got: '" + inFile + "'"))
+		}
+		var g = generator.New(endpoints)
+		g.Package = os.Getenv("GOPACKAGE")
+		g.RabbitMQVersion = rmqVersion
+		f, err := os.Create(outFile)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		g.Generate(f)
+	default:
+		panic(fmt.Errorf("Unrecognized command: '%s'", cmd))
+
+	}
+
+}
+
+func command() string {
+	args := os.Args
+	if len(args) > 1 {
+		return args[1]
+	}
+	return "gen-api"
+}
+
+func parseApiDocs(client *http.Client) (*endpoint.List, error) {
 	resp, err := client.Get("http://localhost:15672/api/index.html")
 	if err != nil {
 		panic(err)
@@ -67,43 +135,40 @@ func run() {
 
 	endpoints, err := parser.ParseApiDocs(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+	return endpoints, nil
+}
 
+func fetchVersions(client *http.Client, username, password string) (rmqVersion, mgmtVersion string, err error) {
 	overviewUrl := "http://localhost:15672/api/overview?columns=rabbitmq_version,management_version"
 	req, err := http.NewRequest(http.MethodGet, overviewUrl, nil)
 	if err != nil {
-		panic(err)
+		return "", "", err
 	}
 	req.SetBasicAuth("guest", "guest")
-	resp, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return "", "", err
 	}
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		panic(fmt.Errorf("could not get rabbitmq version from %s: %s", overviewUrl, resp.Status))
+		return "", "", fmt.Errorf("could not get rabbitmq version from %s: %s", overviewUrl, resp.Status)
 	}
 
 	versions := struct {
 		RabbitMQVersion   string `json:"rabbitmq_version"`
 		ManagementVersion string `json:"management_version"`
-	}{}
+	}{
+		RabbitMQVersion:   "",
+		ManagementVersion: "",
+	}
 
 	err = json.NewDecoder(resp.Body).Decode(&versions)
 	if err != nil {
-		panic(err)
+		return "", "", err
 	}
 
-	var g = generator.New(endpoints)
-	g.Package = os.Getenv("GOPACKAGE")
-	g.RabbitMQVersion = versions.RabbitMQVersion
-	f, err := os.Create(fileName)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	g.Generate(f)
-
+	return versions.RabbitMQVersion, versions.ManagementVersion, nil
 }

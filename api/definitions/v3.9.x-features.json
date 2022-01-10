@@ -1,0 +1,70 @@
+{
+    "version": "3.9.x",
+    "features": {
+        "sorting": {
+            "description": "These parameters let you sort list outputs",
+            "query-parameters":{
+                "sort": {
+                    "type": "string",
+                    "mandatory": true,
+                    "description": "Allows you to select the primary field to sort by"
+                },
+                "sort_reverse": {
+                    "type": "bool",
+                    "mandatory": false,
+                    "description": "Reverses the sort order"
+                }
+            }
+        },
+        "selection": {
+            "description": "You can restrict what information is returned per item with the columns parameter. This is a comma-separated list of subfields separated by dots",
+            "query-parameters":{
+                "columns": {
+                    "type": "[]string",
+                    "mandatory": true,
+                    "description": "Allows you to select the primary field to sort by"
+                }
+            }
+        },
+        "pagination": {
+            "query-parameters":{
+                "page": {
+                    "type": "uint",
+                    "mandatory": true,
+                    "description": "Page number"
+                },
+                "page_size": {
+                    "type": "uint",
+                    "mandatory": false,
+                    "default":"100",
+                    "description": "Page size"
+                },
+                "name": {
+                    "type": "string",
+                    "mandatory": false, 
+                    "description": "Filter by name, for example queue name, exchange name etc..."
+                },
+                "use_regex": {
+                    "type": "bool",
+                    "mandatory": false, 
+                    "description": "Enables regular expression matching for the 'name' parameter"
+                }
+            }
+        }, 
+        "node_stats":{
+            "query-parameters":{
+                "memory": {
+                    "type": "bool",
+                    "mandatory": false, 
+                    "default": "false",
+                    "description": "Enables detailed memory use statistics."
+                },
+                "binary": {
+                    "type": "bool",
+                    "mandatory": false, 
+                    "description": "Detailed breakdown of the owners of binary memory. Note that this can be an expensive query if there are many small binaries in the system."
+                }
+            }
+        }
+    }
+}

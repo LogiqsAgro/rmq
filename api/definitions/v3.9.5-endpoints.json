@@ -1,0 +1,667 @@
+{
+  "version": "3.9.5",
+  "endpoints": [
+    {
+      "description": "Various random bits of information that describe the whole\nsystem.",
+      "path": "/api/overview",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Name identifying this RabbitMQ cluster.",
+      "path": "/api/cluster-name",
+      "methods": {
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of nodes in the RabbitMQ cluster.",
+      "path": "/api/nodes",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "An individual node in the RabbitMQ cluster. Add\n\"?memory=true\" to get memory statistics, and \"?binary=true\"\nto get a breakdown of binary memory use (may be expensive if\nthere are many small binaries in the system).",
+      "path": "/api/nodes/{name}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of extensions to the management plugin.",
+      "path": "/api/extensions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "The server definitions - exchanges, queues, bindings, users,\nvirtual hosts, permissions, topic permissions, and parameters. Everything apart from\nmessages. POST to upload an existing set of definitions. Note\nthat:\nThe definitions are merged. Anything already existing on\nthe server but not in the uploaded definitions is\nuntouched.\nConflicting definitions on immutable objects (exchanges,\nqueues and bindings) will be ignored. The existing definition\nwill be preserved.\nConflicting definitions on mutable objects will cause\nthe object in the server to be overwritten with the\nobject from the definitions.\nIn the event of an error you will be left with a\npart-applied set of definitions.\nFor convenience you may upload a file from a browser to this\nURI (i.e. you can use multipart/form-data as\nwell as application/json) in which case the\ndefinitions should be uploaded as a form field named\n\"file\".",
+      "path": "/api/definitions",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "(deprecated) The server definitions - exchanges, queues, bindings, users,\nvirtual hosts, permissions, topic permissions, and parameters. Everything apart from\nmessages. POST to upload an existing set of definitions. Note\nthat:\nThe definitions are merged. Anything already existing on\nthe server but not in the uploaded definitions is\nuntouched.\nConflicting definitions on immutable objects (exchanges,\nqueues and bindings) will be ignored. The existing definition\nwill be preserved.\nConflicting definitions on mutable objects will cause\nthe object in the server to be overwritten with the\nobject from the definitions.\nIn the event of an error you will be left with a\npart-applied set of definitions.\nFor convenience you may upload a file from a browser to this\nURI (i.e. you can use multipart/form-data as\nwell as application/json) in which case the\ndefinitions should be uploaded as a form field named\n\"file\".",
+      "path": "/api/all-configuration",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "The server definitions for a given virtual host -\nexchanges, queues, bindings and policies.\nPOST to upload an existing set of definitions. Note that:\nThe definitions are merged. Anything already existing on\nthe server but not in the uploaded definitions is\nuntouched.\nConflicting definitions on immutable objects (exchanges,\nqueues and bindings) will be ignored. The existing definition\nwill be preserved.\nConflicting definitions on mutable objects will cause\nthe object in the server to be overwritten with the\nobject from the definitions.\nIn the event of an error you will be left with a\npart-applied set of definitions.\nFor convenience you may upload a file from a browser to this\nURI (i.e. you can use multipart/form-data as\nwell as application/json) in which case the\ndefinitions should be uploaded as a form field named\n\"file\".",
+      "path": "/api/definitions/{vhost}",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "A list of all open connections. Use pagination parameters to filter connections.",
+      "path": "/api/connections",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "A list of all open connections in a specific virtual host. Use pagination parameters to filter connections.",
+      "path": "/api/vhosts/{vhost}/connections",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "An individual connection. DELETEing it will close the\nconnection. Optionally set the \"X-Reason\" header when\nDELETEing to provide a reason.",
+      "path": "/api/connections/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {}
+      }
+    },
+    {
+      "description": "List of all channels for a given connection.",
+      "path": "/api/connections/{name}/channels",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all open channels. Use pagination parameters to filter channels.",
+      "path": "/api/channels",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "A list of all open channels in a specific virtual host. Use pagination parameters to filter channels.",
+      "path": "/api/vhosts/{vhost}/channels",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "Details about an individual channel.",
+      "path": "/api/channels/{channel}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all consumers.",
+      "path": "/api/consumers",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all consumers in a given virtual host.",
+      "path": "/api/consumers/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all exchanges. Use pagination parameters to filter exchanges.",
+      "path": "/api/exchanges",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "A list of all exchanges in a given virtual host. Use pagination parameters to filter exchanges.",
+      "path": "/api/exchanges/{vhost}",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "An individual exchange. To PUT an exchange, you will need a body looking something like this:\n{\"type\":\"direct\",\"auto_delete\":false,\"durable\":true,\"internal\":false,\"arguments\":{}}\nThe type key is mandatory; other keys are optional.\nWhen DELETEing an exchange you can add the query string\nparameter if-unused=true. This prevents the\ndelete from succeeding if the exchange is bound to a queue\nor as a source to another exchange.",
+      "path": "/api/exchanges/{vhost}/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all bindings in which a given exchange is the source.",
+      "path": "/api/exchanges/{vhost}/{name}/bindings/source",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all bindings in which a given exchange is the destination.",
+      "path": "/api/exchanges/{vhost}/{name}/bindings/destination",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Publish a message to a given exchange. You will need a body\nlooking something like:\n{\"properties\":{},\"routing_key\":\"my key\",\"payload\":\"my body\",\"payload_encoding\":\"string\"}\nAll keys are mandatory. The payload_encoding\nkey should be either \"string\" (in which case the payload\nwill be taken to be the UTF-8 encoding of the payload field)\nor \"base64\" (in which case the payload field is taken to be\nbase64 encoded).\nIf the message is published successfully, the response will\nlook like:\n{\"routed\": true}\nrouted will be true if the message was sent to\nat least one queue.\nPlease note that the HTTP API is not ideal for high\nperformance publishing; the need to create a new TCP\nconnection for each message published can limit message\nthroughput compared to AMQP or other protocols using\nlong-lived connections.",
+      "path": "/api/exchanges/{vhost}/{name}/publish",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "A list of all queues. Use pagination parameters to filter queues.",
+      "path": "/api/queues",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "A list of all queues in a given virtual host. Use pagination parameters to filter queues.",
+      "path": "/api/queues/{vhost}",
+      "methods": {
+        "GET": {
+          "features": {
+            "pagination": true
+          }
+        }
+      }
+    },
+    {
+      "description": "An individual queue. To PUT a queue, you will need a body looking something like this:\n{\"auto_delete\":false,\"durable\":true,\"arguments\":{},\"node\":\"rabbit@smacmullen\"}\nAll keys are optional.\nWhen DELETEing a queue you can add the query string\nparameters if-empty=true and /\nor if-unused=true. These prevent the delete\nfrom succeeding if the queue contains messages, or has\nconsumers, respectively.",
+      "path": "/api/queues/{vhost}/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all bindings on a given queue.",
+      "path": "/api/queues/{vhost}/{name}/bindings",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Contents of a queue. DELETE to purge. Note you can't GET this.",
+      "path": "/api/queues/{vhost}/{name}/contents",
+      "methods": {
+        "DELETE": {},
+        "GET": {}
+      }
+    },
+    {
+      "description": "Actions that can be taken on a queue. POST a body like:\n{\"action\":\"sync\"} Currently the actions which are\nsupported are sync and cancel_sync.",
+      "path": "/api/queues/{vhost}/{name}/actions",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "Get messages from a queue. (This is not an HTTP GET as it\nwill alter the state of the queue.) You should post a body looking like:\n{\"count\":5,\"ackmode\":\"ack_requeue_true\",\"encoding\":\"auto\",\"truncate\":50000}\ncount controls the maximum number of\nmessages to get. You may get fewer messages than this if\nthe queue cannot immediately provide them.\nackmode determines whether the messages will be\nremoved from the queue. If ackmode is ack_requeue_true or reject_requeue_true they will be requeued -\nif ackmode is ack_requeue_false or reject_requeue_false they will be removed.\nencoding must be either \"auto\" (in which case the\npayload will be returned as a string if it is valid UTF-8, and\nbase64 encoded otherwise), or \"base64\" (in which case the payload\nwill always be base64 encoded).\nIf truncate is present it will truncate the\nmessage payload if it is larger than the size given (in bytes).\ntruncate is optional; all other keys are mandatory.\nPlease note that the get path in the HTTP API is intended\nfor diagnostics etc - it does not implement reliable\ndelivery and so should be treated as a sysadmin's tool\nrather than a general API for messaging.",
+      "path": "/api/queues/{vhost}/{name}/get",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "A list of all bindings.",
+      "path": "/api/bindings",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all bindings in a given virtual host.",
+      "path": "/api/bindings/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all bindings between an exchange and a\nqueue. Remember, an exchange and a queue can be bound\ntogether many times!\nTo create a new binding, POST to this\nURI. Request body should be a JSON object optionally containing\ntwo fields, routing_key (a string) and arguments (a map of optional arguments):\n{\"routing_key\":\"my_routing_key\", \"arguments\":{\"x-arg\": \"value\"}}\nAll keys are optional.\nThe response will contain a Location header\ntelling you the URI of your new binding.",
+      "path": "/api/bindings/{vhost}/e/{exchange}/q/{queue}",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "An individual binding between an exchange and a queue.\nThe {props} part of the URI is a \"name\" for the binding\ncomposed of its routing key and a hash of its\narguments. {props} is the field named \"properties_key\"\nfrom a bindings listing response.",
+      "path": "/api/bindings/{vhost}/e/{exchange}/q/{queue}/{props}",
+      "methods": {
+        "DELETE": {},
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all bindings between two exchanges, similar to\nthe list of all bindings between an exchange and a queue,\nabove.\nTo create a new binding, POST to this\nURI. Request body should be a JSON object optionally containing\ntwo fields, routing_key (a string) and arguments (a map of optional arguments):\n{\"routing_key\":\"my_routing_key\", \"arguments\":{\"x-arg\": \"value\"}}\nAll keys are optional.\nThe response will contain a Location header\ntelling you the URI of your new binding.",
+      "path": "/api/bindings/{vhost}/e/{source}/e/{destination}",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "An individual binding between two exchanges. Similar to\nthe individual binding between an exchange and a queue,\nabove.",
+      "path": "/api/bindings/{vhost}/e/{source}/e/{destination}/{props}",
+      "methods": {
+        "DELETE": {},
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all vhosts.",
+      "path": "/api/vhosts",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "An individual virtual host. As a virtual host usually only\nhas a name, you do not need an HTTP body when PUTing one of\nthese. To set metadata on creation, provide a body like the following:\n{\"description\":\"virtual host description\", \"tags\":\"accounts,production\"}\ntags is a comma-separated list of tags.\nThese metadata fields are optional.\nTo enable / disable tracing, provide a body looking like:\n{\"tracing\":true}",
+      "path": "/api/vhosts/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all permissions for a given virtual host.",
+      "path": "/api/vhosts/{name}/permissions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all topic permissions for a given virtual host.",
+      "path": "/api/vhosts/{name}/topic-permissions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Starts virtual host {name} on node {node}.",
+      "path": "/api/vhosts/{name}/start/{node}",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "A list of all users.",
+      "path": "/api/users/",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of users that do not have access to any virtual host.",
+      "path": "/api/users/without-permissions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Bulk deletes a list of users. Request body must contain the list:\n{\"users\" : [\"user1\", \"user2\", \"user3\"]}",
+      "path": "/api/users/bulk-delete",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "An individual user. To PUT a user, you will need a body looking something like this:\n{\"password\":\"secret\",\"tags\":\"administrator\"}\nor:\n{\"password_hash\":\"2lmoth8l4H0DViLaK9Fxi6l9ds8=\", \"tags\":\"administrator\"}\nThe tags key is mandatory. Either\npassword or password_hash\ncan be set. If neither are set the user will not be able to log in with a password,\nbut other mechanisms like client certificates may be used.\nSetting password_hash to \"\" will ensure the\nuser cannot use a password to log in. tags is a\ncomma-separated list of tags for the user. Currently recognised tags\nare administrator, monitoring and management.\npassword_hash must be generated using the algorithm described\nhere.\nYou may also specify the hash function being used by adding the hashing_algorithm\nkey to the body. Currently recognised algorithms are rabbit_password_hashing_sha256,\nrabbit_password_hashing_sha512, and rabbit_password_hashing_md5.",
+      "path": "/api/users/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all permissions for a given user.",
+      "path": "/api/users/{user}/permissions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all topic permissions for a given user.",
+      "path": "/api/users/{user}/topic-permissions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Lists per-user limits for all users.",
+      "path": "/api/user-limits",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Lists per-user limits for a specific user.",
+      "path": "/api/user-limits/{user}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Set or delete per-user limit for user. The name URL path element\nrefers to the name of the limit (max-connections, max-channels).\nLimits are set using a JSON document in the body: {\"value\": 100}. Example\nrequest:\ncurl -4u 'guest:guest' -H 'content-type:application/json' -X PUT localhost:15672/api/user-limits/guest/max-connections -d '{\"value\": 50}'",
+      "path": "/api/user-limits/{user}/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "Details of the currently authenticated user.",
+      "path": "/api/whoami",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all permissions for all users.",
+      "path": "/api/permissions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "An individual permission of a user and virtual host. To PUT a permission, you will need a body looking something like this:\n{\"configure\":\".*\",\"write\":\".*\",\"read\":\".*\"}\nAll keys are mandatory.",
+      "path": "/api/permissions/{vhost}/{user}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all topic permissions for all users.",
+      "path": "/api/topic-permissions",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Topic permissions for a user and virtual host. To PUT a topic permission, you will need a body looking something like this:\n{\"exchange\":\"amq.topic\",\"write\":\"^a\",\"read\":\".*\"}\nAll keys are mandatory.",
+      "path": "/api/topic-permissions/{vhost}/{user}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all vhost-scoped parameters.",
+      "path": "/api/parameters",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all vhost-scoped parameters for a given component.",
+      "path": "/api/parameters/{component}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all vhost-scoped parameters for a given component and virtual host.",
+      "path": "/api/parameters/{component}/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "An individual vhost-scoped parameter. To PUT a parameter, you will need a body looking something like this:\n{\"vhost\": \"/\",\"component\":\"federation\",\"name\":\"local_username\",\"value\":\"guest\"}",
+      "path": "/api/parameters/{component}/{vhost}/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all global parameters.",
+      "path": "/api/global-parameters",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "An individual global parameter. To PUT a parameter, you will need a body looking something like this:\n{\"name\":\"user_vhost_mapping\",\"value\":{\"guest\":\"/\",\"rabbit\":\"warren\"}}",
+      "path": "/api/global-parameters/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all policies in a given virtual host.",
+      "path": "/api/policies/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "An individual policy. To PUT a policy, you will need a body looking something like this:\n{\"pattern\":\"^amq.\", \"definition\": {\"federation-upstream-set\":\"all\"}, \"priority\":0, \"apply-to\": \"all\"}\npattern and definition are mandatory, priority and apply-to are optional.",
+      "path": "/api/policies/{vhost}/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "A list of all operator policy overrides.",
+      "path": "/api/operator-policies",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of all operator policy overrides in a given virtual host.",
+      "path": "/api/operator-policies/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "An individual operator policy. To PUT a policy, you will need a body looking something like this:\n{\"pattern\":\"^amq.\", \"definition\": {\"expires\":100}, \"priority\":0, \"apply-to\": \"queues\"}\npattern and definition are mandatory, priority and apply-to are optional.",
+      "path": "/api/operator-policies/{vhost}/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "Declares a test queue on the target node, then publishes and consumes a\nmessage. Intended to be used as a very basic health check.\nResponds a 200 OK if the check succeeded,\notherwise responds with a 503 Service Unavailable.",
+      "path": "/api/aliveness-test/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Responds a 200 OK if there are no alarms in effect in the cluster,\notherwise responds with a 503 Service Unavailable.",
+      "path": "/api/health/checks/alarms",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Responds a 200 OK if there are no local alarms in effect on the target node,\notherwise responds with a 503 Service Unavailable.",
+      "path": "/api/health/checks/local-alarms",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Checks the expiration date on the certificates for every listener configured to use TLS.\nResponds a 200 OK if all certificates are valid (have not expired),\notherwise responds with a 503 Service Unavailable.\nValid units: days, weeks, months, years. The value of the {within} argument is the number of\nunits. So, when {within} is 2 and {unit} is \"months\", the expiration period used by the check\nwill be the next two months.",
+      "path": "/api/health/checks/certificate-expiration/{within}/{unit}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Responds a 200 OK if there is an active listener on the give port,\notherwise responds with a 503 Service Unavailable.",
+      "path": "/api/health/checks/port-listener/{port}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Responds a 200 OK if there is an active listener for the given protocol,\notherwise responds with a 503 Service Unavailable. Valid protocol names are: amqp091, amqp10, mqtt, stomp, web-mqtt, web-stomp.",
+      "path": "/api/health/checks/protocol-listener/{protocol}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Responds a 200 OK if all virtual hosts and running on the target node,\notherwise responds with a 503 Service Unavailable.",
+      "path": "/api/health/checks/virtual-hosts",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Checks if there are classic mirrored queues without synchronised mirrors online\n(queues that would potentially lose data if the target node is shut down).\nResponds a 200 OK if there are no such classic mirrored queues,\notherwise responds with a 503 Service Unavailable.",
+      "path": "/api/health/checks/node-is-mirror-sync-critical",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Checks if there are quorum queues with minimum online quorum (queues that\nwould lose their quorum and availability if the target node is shut down).\nResponds a 200 OK if there are no such quorum queues,\notherwise responds with a 503 Service Unavailable.",
+      "path": "/api/health/checks/node-is-quorum-critical",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Lists per-vhost limits for all vhosts.",
+      "path": "/api/vhost-limits",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Lists per-vhost limits for specific vhost.",
+      "path": "/api/vhost-limits/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Set or delete per-vhost limit for vhost. The name URL path element\nrefers to the name of the limit (max-connections, max-queues).\nLimits are set using a JSON document in the body: {\"value\": 100}. Example\nrequest:\ncurl -4u 'guest:guest' -H 'content-type:application/json' -X PUT localhost:15672/api/vhost-limits/my-vhost/max-connections -d '{\"value\": 50}'",
+      "path": "/api/vhost-limits/{vhost}/{name}",
+      "methods": {
+        "DELETE": {},
+        "GET": {},
+        "PUT": {}
+      }
+    },
+    {
+      "description": "Details about the OAuth2 configuration. It will return HTTP\nstatus 200 with body: {\"enable_uaa\":\"boolean\", \"uaa_client_id\":\"string\", \"uaa_location\":\"string\"}",
+      "path": "/api/auth",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Rebalances all queues in all vhosts. This operation  is asynchronous therefore please check\nthe RabbitMQ log file for messages regarding the success or failure of the operation.\ncurl -4u 'guest:guest' -XPOST localhost:15672/api/rebalance/queues/",
+      "path": "/api/rebalance/queues",
+      "methods": {
+        "GET": {},
+        "POST": {}
+      }
+    },
+    {
+      "description": "Provides status for all federation links. Requires the rabbitmq_federation_management plugin to be enabled.",
+      "path": "/api/federation-links",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "Provides status for all federation links. Requires the rabbitmq_federation_management plugin to be enabled.",
+      "path": "/api/federation-links/{vhost}",
+      "methods": {
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of authentication attempts.",
+      "path": "/api/auth/attempts/{node}",
+      "methods": {
+        "DELETE": {},
+        "GET": {}
+      }
+    },
+    {
+      "description": "A list of authentication attempts by remote address and username.",
+      "path": "/api/auth/attempts/{node}/source",
+      "methods": {
+        "DELETE": {},
+        "GET": {}
+      }
+    }
+  ]
+}

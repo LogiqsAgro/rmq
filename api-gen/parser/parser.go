@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/LogiqsAgro/rmq/api-gen/endpoint"
+	endpoint "github.com/LogiqsAgro/rmq/api/definitions"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 )
@@ -89,41 +89,40 @@ func init() {
 }
 
 func parseEndpointRow(tokenizer *html.Tokenizer, endpoints *endpoint.List) error {
-
 	b := endpoint.Builder()
-	if get, err := getNextCellContents(tokenizer); err == nil {
+	if get, _, err := getNextCellContents(tokenizer); err == nil {
 		if strings.Contains(get, "X") {
-			b.AddVerb(http.MethodGet)
+			b.AddMethod(http.MethodGet)
 		}
 	} else {
 		return err
 	}
 
-	if put, err := getNextCellContents(tokenizer); err == nil {
+	if put, _, err := getNextCellContents(tokenizer); err == nil {
 		if strings.Contains(put, "X") {
-			b.AddVerb(http.MethodPut)
+			b.AddMethod(http.MethodPut)
 		}
 	} else {
 		return err
 	}
 
-	if del, err := getNextCellContents(tokenizer); err == nil {
+	if del, _, err := getNextCellContents(tokenizer); err == nil {
 		if strings.Contains(del, "X") {
-			b.AddVerb(http.MethodDelete)
+			b.AddMethod(http.MethodDelete)
 		}
 	} else {
 		return err
 	}
 
-	if post, err := getNextCellContents(tokenizer); err == nil {
+	if post, _, err := getNextCellContents(tokenizer); err == nil {
 		if strings.Contains(post, "X") {
-			b.AddVerb(http.MethodPost)
+			b.AddMethod(http.MethodPost)
 		}
 	} else {
 		return err
 	}
 
-	if path, err := getNextCellContents(tokenizer); err == nil {
+	if path, _, err := getNextCellContents(tokenizer); err == nil {
 		path = newLineAndTrailingWhitespace.ReplaceAllString(path, "\n")
 		path = strings.Trim(path, "\n ")
 		b.Path(path)
@@ -131,9 +130,10 @@ func parseEndpointRow(tokenizer *html.Tokenizer, endpoints *endpoint.List) error
 		return err
 	}
 
-	if desc, err := getNextCellContents(tokenizer); err == nil {
+	if desc, features, err := getNextCellContents(tokenizer); err == nil {
 		desc = newLineAndTrailingWhitespace.ReplaceAllString(desc, "\n")
 		desc = strings.Trim(desc, "\n ")
+		b.Features(http.MethodGet, features...)
 		b.Description(desc)
 	} else {
 		return err
@@ -218,11 +218,14 @@ func moveTo(tokenizer *html.Tokenizer, tokenType html.TokenType, tagName string)
 	}
 }
 
-func getNextCellContents(tokenizer *html.Tokenizer) (string, error) {
-	if err := moveToCellStart(tokenizer); err != nil {
-		return "", err
+func getNextCellContents(tokenizer *html.Tokenizer) (text string, features []string, err error) {
+	if err = moveToCellStart(tokenizer); err != nil {
+		return "", nil, err
 	}
-	contents := make([]byte, 0, 64)
+	href := []byte("href")
+	hash := []byte("#")
+	contents := &bytes.Buffer{}
+	features = []string{}
 	for {
 		tt := tokenizer.Next()
 		tagBytes, _ := tokenizer.TagName()
@@ -230,17 +233,32 @@ func getNextCellContents(tokenizer *html.Tokenizer) (string, error) {
 
 		switch {
 		case tt == html.TextToken:
-			contents = append(contents, tokenizer.Text()...)
+			contents.Write(tokenizer.Text())
 		case tag == "i" && tt == html.StartTagToken:
-			contents = append(contents, []byte("{")...)
+			contents.WriteString("{")
 		case tag == "i" && tt == html.EndTagToken:
-			contents = append(contents, []byte("}")...)
+			contents.WriteString("}")
 		case tag == "td" && tt == html.EndTagToken:
-			return string(contents), nil
+			return contents.String(), features, nil
+		case tag == "a" && tt == html.StartTagToken:
+			for {
+				// if the href of the link only contains a fragment, like #pagination
+				// we assume this to be a link to an endpoint feature
+				k, v, next := tokenizer.TagAttr()
+				if bytes.Equal(k, href) && bytes.HasPrefix(v, hash) {
+					if err == nil {
+						feature := string(v[len(hash):])
+						features = append(features, feature)
+					}
+				}
+				if !next {
+					break
+				}
+			}
 		case tt == html.ErrorToken:
-			return "", tokenizer.Err()
+			return "", nil, tokenizer.Err()
 		default:
-			contents = append(contents, tokenizer.Text()...)
+			contents.Write(tokenizer.Text())
 		}
 	}
 }

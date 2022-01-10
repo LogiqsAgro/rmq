@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/LogiqsAgro/rmq/api-gen/endpoint"
+	endpoint "github.com/LogiqsAgro/rmq/api/definitions"
 )
 
 type (
@@ -74,8 +74,7 @@ func (g *generator) Generate(w io.Writer) {
 
 	for i := 0; i < len(eps); i++ {
 		ep := eps[i]
-		for j := 0; j < len(ep.Verbs); j++ {
-			verb := ep.Verbs[j]
+		for _, verb := range ep.AllMethods() {
 
 			funcName := g.getEndpointMethodName(verb, ep)
 
